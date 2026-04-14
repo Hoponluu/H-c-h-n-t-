@@ -1,0 +1,752 @@
+[
+  {
+    "char": "痛", "hanViet": "Thống", "pinyin": "tòng", "jyutping": "tung3",
+    "meaning": "Đau; đau đớn; khổ sở",
+    "compounds": [{"word": "痛苦", "reading": "thống khổ", "meaning": "đau khổ"}, {"word": "痛哭", "reading": "thống khốc", "meaning": "khóc đau đớn"}],
+    "radical": "疒", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "哭", "hanViet": "Khốc", "pinyin": "kū", "jyutping": "huk1",
+    "meaning": "Khóc; than vãn; khóc lóc",
+    "compounds": [{"word": "痛哭", "reading": "thống khốc", "meaning": "khóc đau đớn"}, {"word": "哭泣", "reading": "khốc khấp", "meaning": "khóc thầm"}],
+    "radical": "口", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "的", "hanViet": "Đích", "pinyin": "de", "jyutping": "dik1",
+    "meaning": "Trợ từ sở hữu, đánh dấu tính từ",
+    "compounds": [{"word": "目的", "reading": "mục đích", "meaning": "mục đích"}, {"word": "的確", "reading": "đích xác", "meaning": "chắc chắn"}],
+    "radical": "白", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "你", "hanViet": "Nhĩ", "pinyin": "nǐ", "jyutping": "nei5",
+    "meaning": "Bạn; anh; chị (ngôi thứ hai)",
+    "compounds": [{"word": "你好", "reading": "nhĩ hảo", "meaning": "xin chào"}, {"word": "你們", "reading": "nhĩ môn", "meaning": "các bạn"}],
+    "radical": "亻", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "擁", "hanViet": "Ủng", "pinyin": "yōng", "jyutping": "jung2",
+    "meaning": "Ôm; ủng hộ; có đông người",
+    "compounds": [{"word": "擁抱", "reading": "ủng bão", "meaning": "ôm ấp"}, {"word": "擁有", "reading": "ủng hữu", "meaning": "sở hữu"}],
+    "radical": "扌", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "抱", "hanViet": "Bão", "pinyin": "bào", "jyutping": "pou5",
+    "meaning": "Ôm; giữ chặt; ấp ủ",
+    "compounds": [{"word": "擁抱", "reading": "ủng bão", "meaning": "ôm ấp"}, {"word": "抱怨", "reading": "bão oán", "meaning": "phàn nàn"}],
+    "radical": "扌", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "著", "hanViet": "Trước", "pinyin": "zhe", "jyutping": "zoek3",
+    "meaning": "Trợ từ chỉ động tác đang tiếp diễn; mặc; chạm vào",
+    "compounds": [{"word": "著迷", "reading": "trước mê", "meaning": "say mê"}, {"word": "執著", "reading": "chấp trước", "meaning": "kiên trì, cố chấp"}],
+    "radical": "艸", "notes": "Dùng như trợ từ: V + 著 = đang V", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "苦", "hanViet": "Khổ", "pinyin": "kǔ", "jyutping": "fu2",
+    "meaning": "Khổ; đắng; cực nhọc; gian khổ",
+    "compounds": [{"word": "痛苦", "reading": "thống khổ", "meaning": "đau khổ"}, {"word": "苦難", "reading": "khổ nạn", "meaning": "gian khổ"}],
+    "radical": "艸", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "我", "hanViet": "Ngã", "pinyin": "wǒ", "jyutping": "ngo5",
+    "meaning": "Tôi; ta",
+    "compounds": [{"word": "自我", "reading": "tự ngã", "meaning": "bản thân"}, {"word": "我們", "reading": "ngã môn", "meaning": "chúng tôi"}],
+    "radical": "戈", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "悲", "hanViet": "Bi", "pinyin": "bēi", "jyutping": "bei1",
+    "meaning": "Buồn; bi ai; bi thương",
+    "compounds": [{"word": "悲傷", "reading": "bi thương", "meaning": "đau buồn"}, {"word": "悲劇", "reading": "bi kịch", "meaning": "bi kịch"}],
+    "radical": "心", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "傷", "hanViet": "Thương", "pinyin": "shāng", "jyutping": "soeng1",
+    "meaning": "Thương; vết thương; tổn thương; làm đau",
+    "compounds": [{"word": "悲傷", "reading": "bi thương", "meaning": "đau buồn"}, {"word": "創傷", "reading": "sang thương", "meaning": "chấn thương"}],
+    "radical": "人", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "感", "hanViet": "Cảm", "pinyin": "gǎn", "jyutping": "gam2",
+    "meaning": "Cảm; cảm giác; cảm xúc; cảm động",
+    "compounds": [{"word": "感受", "reading": "cảm thụ", "meaning": "cảm nhận"}, {"word": "感染", "reading": "cảm nhiễm", "meaning": "lây nhiễm; lay động"}],
+    "radical": "心", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "染", "hanViet": "Nhiễm", "pinyin": "rǎn", "jyutping": "jim5",
+    "meaning": "Nhuộm; lây nhiễm; ảnh hưởng; bị cuốn vào",
+    "compounds": [{"word": "感染", "reading": "cảm nhiễm", "meaning": "lây nhiễm; lan truyền cảm xúc"}, {"word": "污染", "reading": "ô nhiễm", "meaning": "ô nhiễm"}],
+    "radical": "木", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "創", "hanViet": "Sang/Sáng", "pinyin": "chuàng / chuāng", "jyutping": "cong3",
+    "meaning": "Tạo ra; khởi đầu; vết thương; chấn thương",
+    "compounds": [{"word": "創傷", "reading": "sang thương", "meaning": "chấn thương tâm lý"}, {"word": "創造", "reading": "sáng tạo", "meaning": "sáng tạo"}],
+    "radical": "刀", "notes": "Đọc chuàng: sáng tạo. Đọc chuāng: vết thương", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "倆", "hanViet": "Lưỡng", "pinyin": "liǎ", "jyutping": "loeng5",
+    "meaning": "Cả hai (người); đôi; hai người",
+    "compounds": [{"word": "我倆", "reading": "ngã lưỡng", "meaning": "chúng tôi hai người"}, {"word": "你倆", "reading": "nhĩ lưỡng", "meaning": "hai bạn"}],
+    "radical": "亻", "notes": "Dùng riêng cho người, không dùng cho vật", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "像", "hanViet": "Tượng", "pinyin": "xiàng", "jyutping": "zoeng6",
+    "meaning": "Giống như; hình ảnh; tượng",
+    "compounds": [{"word": "好像", "reading": "hảo tượng", "meaning": "dường như"}, {"word": "圖像", "reading": "đồ tượng", "meaning": "hình ảnh"}],
+    "radical": "亻", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "突", "hanViet": "Đột", "pinyin": "tū", "jyutping": "dat6",
+    "meaning": "Đột ngột; nhô ra; bất ngờ",
+    "compounds": [{"word": "突然", "reading": "đột nhiên", "meaning": "đột nhiên"}, {"word": "突破", "reading": "đột phá", "meaning": "đột phá"}],
+    "radical": "穴", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "然", "hanViet": "Nhiên", "pinyin": "rán", "jyutping": "jin4",
+    "meaning": "Nhiên; thế; như vậy; đương nhiên",
+    "compounds": [{"word": "突然", "reading": "đột nhiên", "meaning": "đột nhiên"}, {"word": "自然", "reading": "tự nhiên", "meaning": "tự nhiên"}],
+    "radical": "灬", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "沒", "hanViet": "Một", "pinyin": "méi", "jyutping": "mut6",
+    "meaning": "Không có; chìm; mất đi",
+    "compounds": [{"word": "沒有", "reading": "một hữu", "meaning": "không có"}, {"word": "沒落", "reading": "một lạc", "meaning": "suy tàn"}],
+    "radical": "氵", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "收", "hanViet": "Thu", "pinyin": "shōu", "jyutping": "sau1",
+    "meaning": "Thu; nhận; thu thập; tịch thu; kết thúc",
+    "compounds": [{"word": "沒收", "reading": "một thu", "meaning": "tịch thu"}, {"word": "收藏", "reading": "thu tàng", "meaning": "sưu tầm, cất giữ"}],
+    "radical": "攴", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "有", "hanViet": "Hữu", "pinyin": "yǒu", "jyutping": "jau5",
+    "meaning": "Có; sở hữu; tồn tại",
+    "compounds": [{"word": "沒有", "reading": "một hữu", "meaning": "không có"}, {"word": "擁有", "reading": "ủng hữu", "meaning": "sở hữu"}],
+    "radical": "月", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "浸", "hanViet": "Tẩm", "pinyin": "jìn", "jyutping": "zam3",
+    "meaning": "Ngâm; thấm; nhúng chìm; bao phủ dần",
+    "compounds": [{"word": "浸沒", "reading": "tẩm một", "meaning": "nhấn chìm, bao phủ"}, {"word": "浸透", "reading": "tẩm thấu", "meaning": "thấm đẫm"}],
+    "radical": "氵", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "了", "hanViet": "Liễu", "pinyin": "le / liǎo", "jyutping": "liu5",
+    "meaning": "Trợ từ hoàn thành; xong; hiểu rõ",
+    "compounds": [{"word": "了解", "reading": "liễu giải", "meaning": "hiểu rõ"}, {"word": "完了", "reading": "hoàn liễu", "meaning": "xong rồi"}],
+    "radical": "乙", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "受", "hanViet": "Thụ", "pinyin": "shòu", "jyutping": "sau6",
+    "meaning": "Nhận; chịu đựng; bị; tiếp nhận",
+    "compounds": [{"word": "感受", "reading": "cảm thụ", "meaning": "cảm nhận"}, {"word": "接受", "reading": "tiếp thụ", "meaning": "chấp nhận"}],
+    "radical": "又", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "似", "hanViet": "Tự", "pinyin": "sì", "jyutping": "ci5",
+    "meaning": "Giống; có vẻ như; tựa như",
+    "compounds": [{"word": "似乎", "reading": "tự hồ", "meaning": "dường như"}, {"word": "好似", "reading": "hảo tự", "meaning": "giống như (Quảng Đông)"}],
+    "radical": "亻", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "燈", "hanViet": "Đăng", "pinyin": "dēng", "jyutping": "dang1",
+    "meaning": "Đèn; ánh đèn; ngọn đèn",
+    "compounds": [{"word": "燈光", "reading": "đăng quang", "meaning": "ánh đèn"}, {"word": "路燈", "reading": "lộ đăng", "meaning": "đèn đường"}],
+    "radical": "火", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "光", "hanViet": "Quang", "pinyin": "guāng", "jyutping": "gwong1",
+    "meaning": "Ánh sáng; quang; trơn nhẵn; hết",
+    "compounds": [{"word": "燈光", "reading": "đăng quang", "meaning": "ánh đèn"}, {"word": "陽光", "reading": "dương quang", "meaning": "ánh nắng"}],
+    "radical": "儿", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "一", "hanViet": "Nhất", "pinyin": "yī", "jyutping": "jat1",
+    "meaning": "Một; số 1; nhất",
+    "compounds": [{"word": "一刻", "reading": "nhất khắc", "meaning": "một khoảnh khắc"}, {"word": "一生", "reading": "nhất sinh", "meaning": "cả đời"}],
+    "radical": "一", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "熄", "hanViet": "Tức", "pinyin": "xī", "jyutping": "sik1",
+    "meaning": "Tắt (lửa, đèn); dập tắt; lụi tàn",
+    "compounds": [{"word": "熄滅", "reading": "tức diệt", "meaning": "dập tắt, tắt hẳn"}, {"word": "熄燈", "reading": "tức đăng", "meaning": "tắt đèn"}],
+    "radical": "火", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "關", "hanViet": "Quan", "pinyin": "guān", "jyutping": "gwaan1",
+    "meaning": "Đóng; quan; liên quan; ải; cửa",
+    "compounds": [{"word": "關上", "reading": "quan thượng", "meaning": "đóng lại"}, {"word": "關係", "reading": "quan hệ", "meaning": "quan hệ"}],
+    "radical": "門", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "上", "hanViet": "Thượng", "pinyin": "shàng", "jyutping": "soeng5",
+    "meaning": "Trên; lên; bậc trên; đi lên",
+    "compounds": [{"word": "關上", "reading": "quan thượng", "meaning": "đóng lại"}, {"word": "向上", "reading": "hướng thượng", "meaning": "hướng lên"}],
+    "radical": "一", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "門", "hanViet": "Môn", "pinyin": "mén", "jyutping": "mun4",
+    "meaning": "Cửa; cổng; môn; ngành",
+    "compounds": [{"word": "門口", "reading": "môn khẩu", "meaning": "cửa ra vào"}, {"word": "大門", "reading": "đại môn", "meaning": "cổng lớn"}],
+    "radical": "門", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "口", "hanViet": "Khẩu", "pinyin": "kǒu", "jyutping": "hau2",
+    "meaning": "Miệng; khẩu; lối vào; cửa",
+    "compounds": [{"word": "門口", "reading": "môn khẩu", "meaning": "cửa ra vào"}, {"word": "口氣", "reading": "khẩu khí", "meaning": "khẩu khí, thái độ nói"}],
+    "radical": "口", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "聽", "hanViet": "Thính", "pinyin": "tīng", "jyutping": "teng1",
+    "meaning": "Nghe; lắng nghe; nghe theo",
+    "compounds": [{"word": "聽說", "reading": "thính thuyết", "meaning": "nghe nói"}, {"word": "傾聽", "reading": "khuynh thính", "meaning": "lắng nghe chăm chú"}],
+    "radical": "耳", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "說", "hanViet": "Thuyết", "pinyin": "shuō", "jyutping": "syut3",
+    "meaning": "Nói; giải thích; thuyết phục",
+    "compounds": [{"word": "聽說", "reading": "thính thuyết", "meaning": "nghe nói"}, {"word": "說話", "reading": "thuyết thoại", "meaning": "nói chuyện"}],
+    "radical": "言", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "過", "hanViet": "Quá", "pinyin": "guò", "jyutping": "gwo3",
+    "meaning": "Qua; trải qua; vượt qua",
+    "compounds": [{"word": "過去", "reading": "quá khứ", "meaning": "quá khứ"}, {"word": "捱過", "reading": "ngại quá", "meaning": "vượt qua (gian nan)"}],
+    "radical": "辶", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "神", "hanViet": "Thần", "pinyin": "shén", "jyutping": "san4",
+    "meaning": "Thần; tinh thần; thần thánh; linh hồn",
+    "compounds": [{"word": "神愛", "reading": "thần ái", "meaning": "tình yêu của Chúa"}, {"word": "精神", "reading": "tinh thần", "meaning": "tinh thần"}],
+    "radical": "示", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "愛", "hanViet": "Ái", "pinyin": "ài", "jyutping": "oi3",
+    "meaning": "Yêu; tình yêu; yêu thích; trân trọng",
+    "compounds": [{"word": "神愛", "reading": "thần ái", "meaning": "tình yêu của Chúa"}, {"word": "愛情", "reading": "ái tình", "meaning": "tình yêu"}],
+    "radical": "心", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "很", "hanViet": "Ngận", "pinyin": "hěn", "jyutping": "han2",
+    "meaning": "Rất; khá; lắm",
+    "compounds": [{"word": "很多", "reading": "ngận đa", "meaning": "rất nhiều"}, {"word": "很可能", "reading": "ngận khả năng", "meaning": "rất có thể"}],
+    "radical": "彳", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "多", "hanViet": "Đa", "pinyin": "duō", "jyutping": "do1",
+    "meaning": "Nhiều; đa số",
+    "compounds": [{"word": "很多", "reading": "ngận đa", "meaning": "rất nhiều"}, {"word": "多少", "reading": "đa thiểu", "meaning": "bao nhiêu"}],
+    "radical": "夕", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "人", "hanViet": "Nhân", "pinyin": "rén", "jyutping": "jan4",
+    "meaning": "Người; con người",
+    "compounds": [{"word": "一生人", "reading": "nhất sinh nhân", "meaning": "cả đời người (Quảng Đông)"}, {"word": "人生", "reading": "nhân sinh", "meaning": "cuộc đời"}],
+    "radical": "人", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "可", "hanViet": "Khả", "pinyin": "kě", "jyutping": "ho2",
+    "meaning": "Có thể; được; khả; nhưng",
+    "compounds": [{"word": "可能", "reading": "khả năng", "meaning": "có thể"}, {"word": "很可能", "reading": "ngận khả năng", "meaning": "rất có thể"}],
+    "radical": "口", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "能", "hanViet": "Năng", "pinyin": "néng", "jyutping": "nang4",
+    "meaning": "Có thể; năng lực; tài năng",
+    "compounds": [{"word": "可能", "reading": "khả năng", "meaning": "có thể"}, {"word": "能力", "reading": "năng lực", "meaning": "năng lực"}],
+    "radical": "月", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "數", "hanViet": "Số", "pinyin": "shù / shǔ", "jyutping": "sou3",
+    "meaning": "Số; đếm; nhiều; kể đến",
+    "compounds": [{"word": "數我", "reading": "số ngã", "meaning": "kể cả tôi (tính đến tôi)"}, {"word": "數量", "reading": "số lượng", "meaning": "số lượng"}],
+    "radical": "攴", "notes": "Đọc shù: con số. Đọc shǔ: đếm, kể", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "亦", "hanViet": "Diệc", "pinyin": "yì", "jyutping": "jik6",
+    "meaning": "Cũng; đều; nữa (văn ngôn)",
+    "compounds": [{"word": "亦有份", "reading": "diệc hữu phần", "meaning": "cũng có phần"}, {"word": "亦然", "reading": "diệc nhiên", "meaning": "cũng vậy"}],
+    "radical": "亠", "notes": "Dùng nhiều trong văn ngôn và tiếng Quảng Đông nói", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "份", "hanViet": "Phần", "pinyin": "fèn", "jyutping": "fan6",
+    "meaning": "Phần; phần chia; thành phần",
+    "compounds": [{"word": "有份", "reading": "hữu phần", "meaning": "có phần, được tính vào"}, {"word": "份量", "reading": "phần lượng", "meaning": "trọng lượng; liều lượng"}],
+    "radical": "人", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "卻", "hanViet": "Khước", "pinyin": "què", "jyutping": "koek3",
+    "meaning": "Nhưng; thế mà; từ chối; lui lại",
+    "compounds": [{"word": "卻是", "reading": "khước thị", "meaning": "thế mà lại là"}, {"word": "退卻", "reading": "thối khước", "meaning": "rút lui"}],
+    "radical": "卩", "notes": "Hay dùng để chỉ sự tương phản bất ngờ", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "活", "hanViet": "Hoạt", "pinyin": "huó", "jyutping": "wut6",
+    "meaning": "Sống; linh hoạt; hoạt động",
+    "compounds": [{"word": "活著", "reading": "hoạt trước", "meaning": "còn sống"}, {"word": "生活", "reading": "sinh hoạt", "meaning": "cuộc sống"}],
+    "radical": "氵", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "到", "hanViet": "Đáo", "pinyin": "dào", "jyutping": "dou3",
+    "meaning": "Đến; tới; đạt được",
+    "compounds": [{"word": "活到", "reading": "hoạt đáo", "meaning": "sống đến"}, {"word": "做到", "reading": "tố đáo", "meaning": "làm được"}],
+    "radical": "刀", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "這", "hanViet": "Giá", "pinyin": "zhè", "jyutping": "ze5",
+    "meaning": "Này; đây (truyền thống của 这)",
+    "compounds": [{"word": "這世人", "reading": "giá thế nhân", "meaning": "người đời này (Quảng Đông: kiếp này)"}, {"word": "這裡", "reading": "giá lý", "meaning": "ở đây"}],
+    "radical": "辶", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "世", "hanViet": "Thế", "pinyin": "shì", "jyutping": "sai3",
+    "meaning": "Thế; đời; thế giới; thế hệ",
+    "compounds": [{"word": "這世人", "reading": "giá thế nhân", "meaning": "người đời này"}, {"word": "世界", "reading": "thế giới", "meaning": "thế giới"}],
+    "radical": "一", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "不", "hanViet": "Bất", "pinyin": "bù", "jyutping": "bat1",
+    "meaning": "Không; phủ định",
+    "compounds": [{"word": "不似", "reading": "bất tự", "meaning": "không giống"}, {"word": "不管", "reading": "bất quản", "meaning": "dù cho; bất kể"}],
+    "radical": "一", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "是", "hanViet": "Thị", "pinyin": "shì", "jyutping": "si6",
+    "meaning": "Là; đúng; phải; thị",
+    "compounds": [{"word": "不是", "reading": "bất thị", "meaning": "không phải"}, {"word": "是否", "reading": "thị phủ", "meaning": "có hay không"}],
+    "radical": "日", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "個", "hanViet": "Cá", "pinyin": "gè", "jyutping": "go3",
+    "meaning": "Lượng từ chỉ sự vật nói chung",
+    "compounds": [{"word": "一個人", "reading": "nhất cá nhân", "meaning": "một mình"}, {"word": "個人", "reading": "cá nhân", "meaning": "cá nhân"}],
+    "radical": "人", "notes": "Phồn thể của 个", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "悄", "hanViet": "Tiêu", "pinyin": "qiāo", "jyutping": "ciu1",
+    "meaning": "Lặng lẽ; thầm lặng; yên tĩnh",
+    "compounds": [{"word": "悄悄", "reading": "tiêu tiêu", "meaning": "lặng lẽ; thầm lặng"}, {"word": "靜悄悄", "reading": "tĩnh tiêu tiêu", "meaning": "im lặng hoàn toàn"}],
+    "radical": "忄", "notes": "悄悄 — láy đôi để nhấn mạnh sự lặng lẽ", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "問", "hanViet": "Vấn", "pinyin": "wèn", "jyutping": "man6",
+    "meaning": "Hỏi; vấn đề; thăm hỏi",
+    "compounds": [{"word": "問題", "reading": "vấn đề", "meaning": "vấn đề"}, {"word": "悄悄問", "reading": "tiêu tiêu vấn", "meaning": "thầm hỏi"}],
+    "radical": "口", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "生", "hanViet": "Sinh", "pinyin": "shēng", "jyutping": "sang1",
+    "meaning": "Sống; sinh ra; cuộc sống",
+    "compounds": [{"word": "一生人", "reading": "nhất sinh nhân", "meaning": "cả đời người"}, {"word": "餘生", "reading": "dư sinh", "meaning": "phần đời còn lại"}],
+    "radical": "生", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "怎", "hanViet": "Chẩm", "pinyin": "zěn", "jyutping": "zam2",
+    "meaning": "Sao; thế nào; làm sao; tại sao",
+    "compounds": [{"word": "怎可能", "reading": "chẩm khả năng", "meaning": "làm sao có thể"}, {"word": "怎樣", "reading": "chẩm dạng", "meaning": "như thế nào"}],
+    "radical": "心", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "早", "hanViet": "Tảo", "pinyin": "zǎo", "jyutping": "zou2",
+    "meaning": "Sớm; buổi sáng; từ lâu",
+    "compounds": [{"word": "早注定", "reading": "tảo chú định", "meaning": "đã được định sẵn từ trước"}, {"word": "早已", "reading": "tảo dĩ", "meaning": "đã từ lâu"}],
+    "radical": "日", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "注", "hanViet": "Chú", "pinyin": "zhù", "jyutping": "zyu3",
+    "meaning": "Chú; ghi chú; đổ vào; chú ý",
+    "compounds": [{"word": "注定", "reading": "chú định", "meaning": "định sẵn, số phận"}, {"word": "注意", "reading": "chú ý", "meaning": "chú ý"}],
+    "radical": "氵", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "定", "hanViet": "Định", "pinyin": "dìng", "jyutping": "ding6",
+    "meaning": "Định; xác định; nhất định; bình tĩnh",
+    "compounds": [{"word": "注定", "reading": "chú định", "meaning": "số phận đã định"}, {"word": "決定", "reading": "quyết định", "meaning": "quyết định"}],
+    "radical": "宀", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "餘", "hanViet": "Dư", "pinyin": "yú", "jyutping": "jyu4",
+    "meaning": "Dư; còn lại; thừa; phần còn",
+    "compounds": [{"word": "餘生", "reading": "dư sinh", "meaning": "phần đời còn lại"}, {"word": "多餘", "reading": "đa dư", "meaning": "thừa thãi"}],
+    "radical": "食", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "雙", "hanViet": "Song", "pinyin": "shuāng", "jyutping": "soeng1",
+    "meaning": "Đôi; cặp; song; cả hai",
+    "compounds": [{"word": "雙眼", "reading": "song nhãn", "meaning": "đôi mắt"}, {"word": "雙手", "reading": "song thủ", "meaning": "đôi tay"}],
+    "radical": "隹", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "眼", "hanViet": "Nhãn", "pinyin": "yǎn", "jyutping": "ngaan5",
+    "meaning": "Mắt; nhãn; nhìn; lỗ hổng",
+    "compounds": [{"word": "雙眼", "reading": "song nhãn", "meaning": "đôi mắt"}, {"word": "眼淚", "reading": "nhãn lệ", "meaning": "nước mắt"}],
+    "radical": "目", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "內", "hanViet": "Nội", "pinyin": "nèi", "jyutping": "noi6",
+    "meaning": "Bên trong; trong",
+    "compounds": [{"word": "眼內", "reading": "nhãn nội", "meaning": "trong mắt"}, {"word": "內心", "reading": "nội tâm", "meaning": "nội tâm"}],
+    "radical": "入", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "凝", "hanViet": "Ngưng", "pinyin": "níng", "jyutping": "jing4",
+    "meaning": "Ngưng; đông đặc; tập trung; nhìn chăm chú",
+    "compounds": [{"word": "凝望", "reading": "ngưng vọng", "meaning": "nhìn chằm chằm, nhìn đắm đuối"}, {"word": "凝固", "reading": "ngưng cố", "meaning": "đông đặc"}],
+    "radical": "冫", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "望", "hanViet": "Vọng", "pinyin": "wàng", "jyutping": "mong6",
+    "meaning": "Nhìn xa; mong chờ; danh vọng",
+    "compounds": [{"word": "凝望", "reading": "ngưng vọng", "meaning": "nhìn đắm đuối"}, {"word": "盼望", "reading": "phán vọng", "meaning": "mong chờ"}],
+    "radical": "月", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "淚", "hanViet": "Lệ", "pinyin": "lèi", "jyutping": "leoi6",
+    "meaning": "Nước mắt; lệ (phồn thể của 泪)",
+    "compounds": [{"word": "淚印", "reading": "lệ ấn", "meaning": "vệt nước mắt"}, {"word": "眼淚", "reading": "nhãn lệ", "meaning": "nước mắt"}],
+    "radical": "氵", "notes": "Phồn thể của 泪", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "印", "hanViet": "Ấn", "pinyin": "yìn", "jyutping": "jan3",
+    "meaning": "Dấu; vết; in; ấn tượng; con dấu",
+    "compounds": [{"word": "淚印", "reading": "lệ ấn", "meaning": "vệt nước mắt còn lại"}, {"word": "印象", "reading": "ấn tượng", "meaning": "ấn tượng"}],
+    "radical": "卩", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "弱", "hanViet": "Nhược", "pinyin": "ruò", "jyutping": "joek6",
+    "meaning": "Yếu; nhược; yếu đuối; kém",
+    "compounds": [{"word": "弱小", "reading": "nhược tiểu", "meaning": "nhỏ bé và yếu đuối"}, {"word": "脆弱", "reading": "thuý nhược", "meaning": "mỏng manh, dễ vỡ"}],
+    "radical": "弓", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "小", "hanViet": "Tiểu", "pinyin": "xiǎo", "jyutping": "siu2",
+    "meaning": "Nhỏ; bé; nhỏ bé",
+    "compounds": [{"word": "渺小", "reading": "miểu tiểu", "meaning": "nhỏ bé, tầm thường"}, {"word": "弱小", "reading": "nhược tiểu", "meaning": "yếu đuối nhỏ bé"}],
+    "radical": "小", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "牽", "hanViet": "Khiên", "pinyin": "qiān", "jyutping": "hin1",
+    "meaning": "Kéo; dắt; vướng bận; nhớ nhung",
+    "compounds": [{"word": "牽掛", "reading": "khiên quải", "meaning": "nhớ nhung, lo lắng cho ai"}, {"word": "牽引", "reading": "khiên dẫn", "meaning": "kéo dẫn"}],
+    "radical": "牛", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "掛", "hanViet": "Quải", "pinyin": "guà", "jyutping": "gwaa3",
+    "meaning": "Treo; móc; vấn vương; nhớ nhung",
+    "compounds": [{"word": "牽掛", "reading": "khiên quải", "meaning": "nhớ nhung, lo lắng cho ai"}, {"word": "掛念", "reading": "quải niệm", "meaning": "nhớ thương"}],
+    "radical": "扌", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "渺", "hanViet": "Miểu", "pinyin": "miǎo", "jyutping": "miu5",
+    "meaning": "Mờ xa; nhỏ bé vô nghĩa; mênh mông",
+    "compounds": [{"word": "渺小", "reading": "miểu tiểu", "meaning": "nhỏ bé, không đáng kể"}, {"word": "渺茫", "reading": "miểu mang", "meaning": "mờ mịt, vô vọng"}],
+    "radical": "氵", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "未", "hanViet": "Vị", "pinyin": "wèi", "jyutping": "mei6",
+    "meaning": "Chưa; chưa xong; vị (can chi)",
+    "compounds": [{"word": "未好", "reading": "vị hảo", "meaning": "chưa tốt, chưa lành (Quảng Đông)"}, {"word": "未來", "reading": "vị lai", "meaning": "tương lai"}],
+    "radical": "木", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "好", "hanViet": "Hảo", "pinyin": "hǎo", "jyutping": "hou2",
+    "meaning": "Tốt; tốt đẹp; được; tốt lành",
+    "compounds": [{"word": "美好", "reading": "mỹ hảo", "meaning": "tốt đẹp"}, {"word": "好像", "reading": "hảo tượng", "meaning": "dường như"}],
+    "radical": "女", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "希", "hanViet": "Hy", "pinyin": "xī", "jyutping": "hei1",
+    "meaning": "Hy; hy vọng; hiếm có; mong mỏi",
+    "compounds": [{"word": "希冀", "reading": "hy ký", "meaning": "hy vọng, mong mỏi"}, {"word": "希望", "reading": "hy vọng", "meaning": "hy vọng"}],
+    "radical": "巾", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "冀", "hanViet": "Ký", "pinyin": "jì", "jyutping": "gei3",
+    "meaning": "Mong; hy vọng (văn ngôn); tỉnh Hà Bắc",
+    "compounds": [{"word": "希冀", "reading": "hy ký", "meaning": "hy vọng tha thiết"}, {"word": "冀望", "reading": "ký vọng", "meaning": "mong mỏi"}],
+    "radical": "八", "notes": "Từ văn ngôn, mạnh hơn 望 và 希", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "美", "hanViet": "Mỹ", "pinyin": "měi", "jyutping": "mei5",
+    "meaning": "Đẹp; tuyệt vời; tốt đẹp; nước Mỹ",
+    "compounds": [{"word": "美好", "reading": "mỹ hảo", "meaning": "tốt đẹp, tươi sáng"}, {"word": "美麗", "reading": "mỹ lệ", "meaning": "xinh đẹp"}],
+    "radical": "羊", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "想", "hanViet": "Tưởng", "pinyin": "xiǎng", "jyutping": "soeng2",
+    "meaning": "Nghĩ; muốn; nhớ; tưởng tượng",
+    "compounds": [{"word": "想念", "reading": "tưởng niệm", "meaning": "nhớ nhung"}, {"word": "思想", "reading": "tư tưởng", "meaning": "tư tưởng"}],
+    "radical": "心", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "地", "hanViet": "Địa", "pinyin": "dì / de", "jyutping": "dei6",
+    "meaning": "Đất; địa; trạng từ hóa",
+    "compounds": [{"word": "突然地", "reading": "đột nhiên địa", "meaning": "một cách đột ngột"}, {"word": "地方", "reading": "địa phương", "meaning": "địa phương"}],
+    "radical": "土", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "去", "hanViet": "Khứ", "pinyin": "qù", "jyutping": "heoi3",
+    "meaning": "Đi; rời; qua",
+    "compounds": [{"word": "去守候", "reading": "khứ thủ hầu", "meaning": "đi trông chờ"}, {"word": "過去", "reading": "quá khứ", "meaning": "quá khứ"}],
+    "radical": "厶", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "守", "hanViet": "Thủ", "pinyin": "shǒu", "jyutping": "sau2",
+    "meaning": "Giữ; bảo vệ; trông chờ; thủ",
+    "compounds": [{"word": "守候", "reading": "thủ hầu", "meaning": "trông chờ, chờ đợi kiên nhẫn"}, {"word": "守護", "reading": "thủ hộ", "meaning": "bảo vệ, che chở"}],
+    "radical": "宀", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "候", "hanViet": "Hầu", "pinyin": "hòu", "jyutping": "hau6",
+    "meaning": "Chờ; thời điểm; hầu; tiết khí",
+    "compounds": [{"word": "守候", "reading": "thủ hầu", "meaning": "trông chờ kiên nhẫn"}, {"word": "時候", "reading": "thời hầu", "meaning": "lúc; khi"}],
+    "radical": "亻", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "天", "hanViet": "Thiên", "pinyin": "tiān", "jyutping": "tin1",
+    "meaning": "Trời; bầu trời; ngày",
+    "compounds": [{"word": "天光", "reading": "thiên quang", "meaning": "ánh sáng ban ngày; trời sáng"}, {"word": "天邊", "reading": "thiên biên", "meaning": "chân trời"}],
+    "radical": "大", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "刻", "hanViet": "Khắc", "pinyin": "kè", "jyutping": "hak1",
+    "meaning": "Khắc; giờ; khoảnh khắc; tức thì",
+    "compounds": [{"word": "一刻", "reading": "nhất khắc", "meaning": "một khoảnh khắc"}, {"word": "深刻", "reading": "thâm khắc", "meaning": "sâu sắc"}],
+    "radical": "刀", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "再", "hanViet": "Tái", "pinyin": "zài", "jyutping": "zoi3",
+    "meaning": "Lại; thêm một lần nữa",
+    "compounds": [{"word": "再向前走", "reading": "tái hướng tiền tẩu", "meaning": "lại tiến về phía trước"}, {"word": "再次", "reading": "tái thứ", "meaning": "một lần nữa"}],
+    "radical": "冂", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "向", "hanViet": "Hướng", "pinyin": "xiàng", "jyutping": "hoeng3",
+    "meaning": "Hướng; về phía; trước đây; đối diện",
+    "compounds": [{"word": "向前", "reading": "hướng tiền", "meaning": "về phía trước"}, {"word": "方向", "reading": "phương hướng", "meaning": "phương hướng"}],
+    "radical": "口", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "前", "hanViet": "Tiền", "pinyin": "qián", "jyutping": "cin4",
+    "meaning": "Trước; phía trước; trước đây",
+    "compounds": [{"word": "向前走", "reading": "hướng tiền tẩu", "meaning": "bước về phía trước"}, {"word": "前方", "reading": "tiền phương", "meaning": "phía trước"}],
+    "radical": "刀", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "走", "hanViet": "Tẩu", "pinyin": "zǒu", "jyutping": "zau2",
+    "meaning": "Đi; bước; rời đi; chạy",
+    "compounds": [{"word": "向前走", "reading": "hướng tiền tẩu", "meaning": "bước về phía trước"}, {"word": "走開", "reading": "tẩu khai", "meaning": "đi đi, rời đi"}],
+    "radical": "走", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "快", "hanViet": "Khoái", "pinyin": "kuài", "jyutping": "faai3",
+    "meaning": "Nhanh; vui sướng; sảng khoái",
+    "compounds": [{"word": "快樂", "reading": "khoái lạc", "meaning": "vui vẻ"}, {"word": "快感", "reading": "khoái cảm", "meaning": "cảm giác thỏa mãn"}],
+    "radical": "忄", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "樂", "hanViet": "Lạc", "pinyin": "lè", "jyutping": "lok6",
+    "meaning": "Vui vẻ; hạnh phúc; âm nhạc",
+    "compounds": [{"word": "快樂", "reading": "khoái lạc", "meaning": "vui vẻ"}, {"word": "音樂", "reading": "âm nhạc", "meaning": "âm nhạc"}],
+    "radical": "木", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "那", "hanViet": "Na", "pinyin": "nà", "jyutping": "naa5",
+    "meaning": "Đó; kia; ấy",
+    "compounds": [{"word": "那裡", "reading": "na lý", "meaning": "ở đó"}, {"word": "那個", "reading": "na cá", "meaning": "cái đó"}],
+    "radical": "邑", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "俗", "hanViet": "Tục", "pinyin": "sú", "jyutping": "zuk6",
+    "meaning": "Tục; thế tục; phong tục; tầm thường; trần tục",
+    "compounds": [{"word": "世俗", "reading": "thế tục", "meaning": "thế tục, đời thường"}, {"word": "俗氣", "reading": "tục khí", "meaning": "tầm thường, thiếu tinh tế"}],
+    "radical": "人", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "裡", "hanViet": "Lý", "pinyin": "lǐ", "jyutping": "leoi5",
+    "meaning": "Trong; bên trong; dặm (phồn thể của 里)",
+    "compounds": [{"word": "世俗裡", "reading": "thế tục lý", "meaning": "trong thế tục"}, {"word": "心裡", "reading": "tâm lý", "meaning": "trong lòng"}],
+    "radical": "衣", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "偏", "hanViet": "Thiên", "pinyin": "piān", "jyutping": "pin1",
+    "meaning": "Lệch; thiên vị; chệch; cứ phải",
+    "compounds": [{"word": "偏差", "reading": "thiên sai", "meaning": "sai lệch; lệch chuẩn"}, {"word": "偏見", "reading": "thiên kiến", "meaning": "định kiến"}],
+    "radical": "亻", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "差", "hanViet": "Sai / Sai", "pinyin": "chā / chà", "jyutping": "caa1",
+    "meaning": "Sai; sai lệch; khác biệt; chênh lệch; kém",
+    "compounds": [{"word": "偏差", "reading": "thiên sai", "meaning": "sai lệch"}, {"word": "差異", "reading": "sai dị", "meaning": "sự khác biệt"}],
+    "radical": "工", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "來", "hanViet": "Lai", "pinyin": "lái", "jyutping": "loi4",
+    "meaning": "Đến; tới; lại (phồn thể của 来)",
+    "compounds": [{"word": "未來", "reading": "vị lai", "meaning": "tương lai"}, {"word": "將來", "reading": "tương lai", "meaning": "tương lai"}],
+    "radical": "木", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "就", "hanViet": "Tựu", "pinyin": "jiù", "jyutping": "zau6",
+    "meaning": "Liền; ngay; thì; chính là",
+    "compounds": [{"word": "就是", "reading": "tựu thị", "meaning": "chính là"}, {"word": "成就", "reading": "thành tựu", "meaning": "thành tựu"}],
+    "radical": "尢", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "吧", "hanViet": "Ba", "pinyin": "ba", "jyutping": "baa1",
+    "meaning": "Trợ từ cuối câu (đề nghị, xác nhận nhẹ)",
+    "compounds": [{"word": "好吧", "reading": "hảo ba", "meaning": "được thôi"}, {"word": "未來吧", "reading": "vị lai ba", "meaning": "tương lai thôi (chấp nhận mơ hồ)"}],
+    "radical": "口", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "二", "hanViet": "Nhị", "pinyin": "èr", "jyutping": "ji6",
+    "meaning": "Hai; số 2; thứ hai",
+    "compounds": [{"word": "二人", "reading": "nhị nhân", "meaning": "hai người"}, {"word": "第二", "reading": "đệ nhị", "meaning": "thứ hai"}],
+    "radical": "二", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "負", "hanViet": "Phụ", "pinyin": "fù", "jyutping": "fu6",
+    "meaning": "Gánh chịu; mang; thua; âm (phồn thể của 负)",
+    "compounds": [{"word": "負擔", "reading": "phụ đảm", "meaning": "gánh nặng"}, {"word": "背負", "reading": "bội phụ", "meaning": "gánh chịu"}],
+    "radical": "貝", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "擔", "hanViet": "Đảm", "pinyin": "dān / dàn", "jyutping": "daam1",
+    "meaning": "Gánh; gánh nặng; đảm nhận; lo lắng",
+    "compounds": [{"word": "負擔", "reading": "phụ đảm", "meaning": "gánh nặng"}, {"word": "擔心", "reading": "đảm tâm", "meaning": "lo lắng"}],
+    "radical": "扌", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "管", "hanViet": "Quản", "pinyin": "guǎn", "jyutping": "gun2",
+    "meaning": "Quản; ống; không kể; bất kể; quản lý",
+    "compounds": [{"word": "不管", "reading": "bất quản", "meaning": "dù cho; bất kể"}, {"word": "管理", "reading": "quản lý", "meaning": "quản lý"}],
+    "radical": "竹", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "在", "hanViet": "Tại", "pinyin": "zài", "jyutping": "zoi6",
+    "meaning": "Ở; đang; tại",
+    "compounds": [{"word": "在哪", "reading": "tại na", "meaning": "ở đâu"}, {"word": "存在", "reading": "tồn tại", "meaning": "tồn tại"}],
+    "radical": "土", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "哪", "hanViet": "Na / Nã", "pinyin": "nǎ / nà", "jyutping": "naa2",
+    "meaning": "Ở đâu; nào; đâu",
+    "compounds": [{"word": "在哪", "reading": "tại na", "meaning": "ở đâu"}, {"word": "哪裡", "reading": "na lý", "meaning": "ở đâu"}],
+    "radical": "口", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "大", "hanViet": "Đại", "pinyin": "dà", "jyutping": "daai6",
+    "meaning": "To; lớn; vĩ đại",
+    "compounds": [{"word": "大概", "reading": "đại khái", "meaning": "đại khái, có lẽ"}, {"word": "大家", "reading": "đại gia", "meaning": "mọi người"}],
+    "radical": "大", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "概", "hanViet": "Khái", "pinyin": "gài", "jyutping": "koi3",
+    "meaning": "Khái; đại khái; tổng quát; có lẽ",
+    "compounds": [{"word": "大概", "reading": "đại khái", "meaning": "có lẽ; khoảng chừng"}, {"word": "概念", "reading": "khái niệm", "meaning": "khái niệm"}],
+    "radical": "木", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "恍", "hanViet": "Hoảng", "pinyin": "huǎng", "jyutping": "fong2",
+    "meaning": "Mơ hồ; ngơ ngẩn; như vừa tỉnh; bỗng",
+    "compounds": [{"word": "恍了神", "reading": "hoảng liễu thần", "meaning": "mất hồn, ngẩn ngơ"}, {"word": "恍然", "reading": "hoảng nhiên", "meaning": "bỗng nhiên hiểu ra"}],
+    "radical": "忄", "notes": "恍了神 (Quảng Đông): đờ người, mất hồn", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "切", "hanViet": "Thiết / Thế", "pinyin": "qiē / qiè", "jyutping": "cit3",
+    "meaning": "Cắt; tất cả; thiết thực; tha thiết",
+    "compounds": [{"word": "一切", "reading": "nhất thiết", "meaning": "tất cả mọi thứ"}, {"word": "切實", "reading": "thiết thực", "meaning": "thiết thực"}],
+    "radical": "刀", "notes": "一切 = tất cả", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "費", "hanViet": "Phí", "pinyin": "fèi", "jyutping": "fai3",
+    "meaning": "Phí; tốn; lãng phí; tiêu hao",
+    "compounds": [{"word": "費神", "reading": "phí thần", "meaning": "tốn công sức, hao tâm lực"}, {"word": "浪費", "reading": "lãng phí", "meaning": "lãng phí"}],
+    "radical": "貝", "notes": "費神 (Quảng Đông): làm phiền; tốn hao tinh thần", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "會", "hanViet": "Hội", "pinyin": "huì", "jyutping": "wui5",
+    "meaning": "Có thể; sẽ; hội; gặp gỡ; hiểu",
+    "compounds": [{"word": "我會", "reading": "ngã hội", "meaning": "tôi sẽ"}, {"word": "機會", "reading": "cơ hội", "meaning": "cơ hội"}],
+    "radical": "人", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "信", "hanViet": "Tín", "pinyin": "xìn", "jyutping": "seon3",
+    "meaning": "Tin; tin tưởng; thư từ; thành tín",
+    "compounds": [{"word": "相信", "reading": "tương tín", "meaning": "tin vào"}, {"word": "信任", "reading": "tín nhiệm", "meaning": "tin tưởng"}],
+    "radical": "亻", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "任", "hanViet": "Nhậm", "pinyin": "rèn", "jyutping": "jam6",
+    "meaning": "Nhậm; chức vụ; tin tưởng; bất kể",
+    "compounds": [{"word": "信任", "reading": "tín nhiệm", "meaning": "tin tưởng"}, {"word": "任何", "reading": "nhậm hà", "meaning": "bất kỳ"}],
+    "radical": "亻", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "總", "hanViet": "Tổng", "pinyin": "zǒng", "jyutping": "zung2",
+    "meaning": "Tổng; tổng cộng; luôn luôn; rốt cuộc",
+    "compounds": [{"word": "總可能", "reading": "tổng khả năng", "meaning": "rốt cuộc vẫn có thể"}, {"word": "總是", "reading": "tổng thị", "meaning": "luôn luôn là"}],
+    "radical": "糸", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "死", "hanViet": "Tử", "pinyin": "sǐ", "jyutping": "sei2",
+    "meaning": "Chết; chết chóc; quyết tâm; cứng nhắc",
+    "compounds": [{"word": "死裡逃生", "reading": "tử lý đào sinh", "meaning": "thoát chết"}, {"word": "生死", "reading": "sinh tử", "meaning": "sống chết"}],
+    "radical": "歹", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "面", "hanViet": "Diện", "pinyin": "miàn", "jyutping": "min6",
+    "meaning": "Mặt; diện; phía; bề mặt",
+    "compounds": [{"word": "裡面", "reading": "lý diện", "meaning": "bên trong"}, {"word": "面對", "reading": "diện đối", "meaning": "đối mặt"}],
+    "radical": "面", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "逃", "hanViet": "Đào", "pinyin": "táo", "jyutping": "tou4",
+    "meaning": "Trốn; chạy trốn; đào thoát",
+    "compounds": [{"word": "逃生", "reading": "đào sinh", "meaning": "thoát chết"}, {"word": "逃脫", "reading": "đào thoát", "meaning": "thoát khỏi"}],
+    "radical": "辶", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "相", "hanViet": "Tương / Tướng", "pinyin": "xiāng / xiàng", "jyutping": "soeng1",
+    "meaning": "Lẫn nhau; tướng mạo; quan sát kỹ",
+    "compounds": [{"word": "相信", "reading": "tương tín", "meaning": "tin vào"}, {"word": "相互", "reading": "tương hỗ", "meaning": "lẫn nhau"}],
+    "radical": "木", "notes": "Đọc xiāng: lẫn nhau. Đọc xiàng: tướng mạo, quan sát", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "忍", "hanViet": "Nhẫn", "pinyin": "rěn", "jyutping": "jan2",
+    "meaning": "Nhẫn; chịu đựng; kiên nhẫn; nén lòng",
+    "compounds": [{"word": "忍耐", "reading": "nhẫn nại", "meaning": "kiên nhẫn chịu đựng"}, {"word": "忍受", "reading": "nhẫn thụ", "meaning": "chịu đựng"}],
+    "radical": "心", "notes": "刀 (dao) trên 心 (tâm) → kiên nhẫn như dao kề lòng", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "耐", "hanViet": "Nại", "pinyin": "nài", "jyutping": "noi6",
+    "meaning": "Nại; kiên nhẫn; chịu đựng lâu dài",
+    "compounds": [{"word": "忍耐", "reading": "nhẫn nại", "meaning": "kiên nhẫn"}, {"word": "耐心", "reading": "nại tâm", "meaning": "kiên nhẫn (tính từ)"}],
+    "radical": "而", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "捱", "hanViet": "Ngại", "pinyin": "ái", "jyutping": "ngaai4",
+    "meaning": "Chịu đựng; vượt qua; lê lết qua (khó khăn)",
+    "compounds": [{"word": "捱過", "reading": "ngại quá", "meaning": "vượt qua được"}, {"word": "捱日子", "reading": "ngại nhật tử", "meaning": "sống lây lất qua ngày"}],
+    "radical": "扌", "notes": "Từ đặc trưng Quảng Đông — chịu đựng bằng cách kiên trì", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "萬", "hanViet": "Vạn", "pinyin": "wàn", "jyutping": "maan6",
+    "meaning": "Vạn; mười nghìn; vô số",
+    "compounds": [{"word": "萬次", "reading": "vạn thứ", "meaning": "vạn lần"}, {"word": "萬一", "reading": "vạn nhất", "meaning": "lỡ như; nếu chẳng may"}],
+    "radical": "艸", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "次", "hanViet": "Thứ", "pinyin": "cì", "jyutping": "ci3",
+    "meaning": "Lần; thứ; thứ tự; kém hơn",
+    "compounds": [{"word": "萬次", "reading": "vạn thứ", "meaning": "vạn lần"}, {"word": "再次", "reading": "tái thứ", "meaning": "một lần nữa"}],
+    "radical": "欠", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  },
+  {
+    "char": "力", "hanViet": "Lực", "pinyin": "lì", "jyutping": "lik6",
+    "meaning": "Sức lực; năng lực; cố gắng",
+    "compounds": [{"word": "有力", "reading": "hữu lực", "meaning": "có sức lực, mạnh mẽ"}, {"word": "努力", "reading": "nỗ lực", "meaning": "nỗ lực"}],
+    "radical": "力", "notes": "", "status": "new", "dateAdded": "2026-04-14"
+  }
+]

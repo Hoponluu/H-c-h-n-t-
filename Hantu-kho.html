@@ -1,0 +1,2582 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漢字 Kho — Hán Tự Cá Nhân</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #7c6ef1;
+  --new: #6366f1;
+  --reviewing: #f59e0b;
+  --mastered: #10b981;
+  --legend-bg: rgba(22,27,34,0.92);
+  --stat-bg: rgba(22,27,34,0.88);
+  --tooltip-bg: rgba(22,27,34,0.96);
+  --modal-overlay-bg: rgba(0,0,0,0.65);
+}
+
+body.light {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface2: #eef0f3;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #656d76;
+  --accent: #6e5ef5;
+  --legend-bg: rgba(255,255,255,0.96);
+  --stat-bg: rgba(255,255,255,0.92);
+  --tooltip-bg: rgba(255,255,255,0.98);
+  --modal-overlay-bg: rgba(0,0,0,0.4);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+#header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+#logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+#logo .accent { color: var(--accent); }
+#logo .sub { font-size: 11px; color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+
+#search-box {
+  flex: 1;
+  max-width: 280px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 14px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+#search-box::placeholder { color: var(--text-muted); }
+#search-box:focus { border-color: var(--accent); }
+
+.view-toggle {
+  display: flex;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.view-btn {
+  padding: 7px 14px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.view-btn.active {
+  background: var(--accent);
+  color: white;
+}
+
+.header-filters {
+  display: flex;
+  gap: 6px;
+}
+.filter-btn {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.filter-btn.active-filter { color: white; border-color: transparent; }
+.filter-btn.f-all.active-filter { background: #4b5563; }
+.filter-btn.f-new.active-filter { background: var(--new); }
+.filter-btn.f-reviewing.active-filter { background: var(--reviewing); }
+.filter-btn.f-mastered.active-filter { background: var(--mastered); }
+
+#btn-add {
+  padding: 8px 16px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  margin-left: auto;
+}
+#btn-add:hover { opacity: 0.85; }
+
+/* ── MAIN ── */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── GRAPH VIEW ── */
+#graph-view {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+#graph-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── STATS ── */
+#stats {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+.stat-chip {
+  background: var(--stat-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 11px;
+  font-size: 11px;
+  color: var(--text-muted);
+  backdrop-filter: blur(8px);
+}
+.stat-chip b { color: var(--text); }
+
+/* ── LEGEND ── */
+#legend {
+  position: absolute;
+  bottom: 18px;
+  left: 18px;
+  background: var(--legend-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 11px;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+#legend .leg-title {
+  color: var(--text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.leg-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  color: var(--text-muted);
+}
+.leg-edge {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px 6px 2px 0;
+  margin-left: -6px;
+  transition: opacity 0.2s, background 0.15s;
+  user-select: none;
+}
+.leg-edge:hover { background: rgba(255,255,255,0.05); }
+.leg-edge.inactive { opacity: 0.3; }
+.leg-edge .leg-line { transition: opacity 0.2s; }
+.leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.leg-line { width: 22px; height: 2px; flex-shrink: 0; border-radius: 1px; }
+.leg-sep { border-top: 1px solid var(--border); margin: 8px 0; }
+
+/* ── HINT ── */
+#hint {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  font-size: 11px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* ── DETAIL PANEL ── */
+#detail-panel {
+  width: 0;
+  min-width: 0;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.3s ease, min-width 0.3s ease;
+}
+#detail-panel.open {
+  width: 320px;
+  min-width: 320px;
+}
+#detail-scroll {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#detail-header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  flex-shrink: 0;
+}
+#detail-close {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+#detail-close:hover { background: var(--surface2); color: var(--text); }
+
+#detail-char {
+  font-size: 68px;
+  line-height: 1;
+  margin-bottom: 10px;
+  display: block;
+}
+.reading-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+.reading-label {
+  color: var(--text-muted);
+  font-size: 10px;
+  width: 76px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.reading-value { color: var(--text); font-weight: 500; }
+
+#detail-body {
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+.ds-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 7px;
+}
+.ds-text { font-size: 13px; line-height: 1.6; }
+
+.meta-row {
+  display: flex;
+  gap: 8px;
+}
+.meta-box {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-align: center;
+  flex: 1;
+}
+.meta-box .val { font-size: 18px; font-weight: 700; }
+.meta-box .lbl { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  user-select: none;
+}
+.status-badge:hover { opacity: 0.8; }
+.status-badge.new { background: rgba(99,102,241,0.15); color: #818cf8; }
+.status-badge.reviewing { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.status-badge.mastered { background: rgba(16,185,129,0.15); color: #34d399; }
+
+.compound-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+.cw { font-size: 17px; font-weight: 600; }
+.cm { color: var(--text-muted); font-size: 12px; }
+
+.related-wrap { display: flex; flex-wrap: wrap; gap: 4px; }
+.related-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 17px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.related-chip:hover { border-color: var(--accent); }
+.related-chip small { font-size: 10px; color: var(--text-muted); }
+
+.note-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.6;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--accent);
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 20px;
+  flex-shrink: 0;
+}
+.btn-edit, .btn-delete {
+  flex: 1;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-edit { background: var(--surface2); color: var(--text); }
+.btn-edit:hover { border-color: var(--accent); color: var(--accent); }
+.btn-delete { background: rgba(239,68,68,0.08); color: #f87171; border-color: rgba(239,68,68,0.25); }
+.btn-delete:hover { background: rgba(239,68,68,0.18); }
+
+/* ── LIST VIEW ── */
+#list-view {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+#list-view.active { display: block; }
+
+.list-table { width: 100%; border-collapse: collapse; }
+.list-table th {
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.list-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+.list-table th.sortable:hover { color: var(--text); }
+.list-table th.sortable::after {
+  content: ' ↕';
+  opacity: 0.25;
+  font-size: 9px;
+  margin-left: 2px;
+}
+.list-table th.sortable.sort-asc::after  { content: ' ↑'; opacity: 1; }
+.list-table th.sortable.sort-desc::after { content: ' ↓'; opacity: 1; }
+.list-table th.sortable.sort-asc,
+.list-table th.sortable.sort-desc { color: var(--accent); }
+.list-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.list-table tr:hover td { background: rgba(255,255,255,0.02); cursor: pointer; }
+.char-cell { font-size: 22px; font-weight: 600; }
+.muted-cell { color: var(--text-muted); font-size: 11px; }
+.meaning-cell { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-del-btn {
+  opacity: 0;
+  background: none;
+  border: none;
+  color: #f87171;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: opacity 0.15s, background 0.15s;
+}
+.list-table tr:hover .row-del-btn { opacity: 1; }
+.row-del-btn:hover { background: rgba(239,68,68,0.12); }
+
+/* ── MODAL ── */
+#modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay-bg);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+#modal-overlay.open { display: flex; }
+#modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 24px;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+#modal h3 { font-size: 17px; margin-bottom: 20px; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group select, .form-group textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 11px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+.form-group.full { grid-column: 1 / -1; }
+
+#modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.btn-cancel {
+  padding: 9px 18px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+}
+.btn-save {
+  padding: 9px 22px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.btn-cancel:hover { border-color: var(--text-muted); }
+.btn-save:hover { opacity: 0.88; }
+
+/* ── TOOLTIP ── */
+#tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: var(--tooltip-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.12s;
+  max-width: 200px;
+  line-height: 1.5;
+}
+#tooltip.show { opacity: 1; }
+
+/* ── EMPTY STATE ── */
+#empty-state {
+  display: none;
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+#empty-state .big { font-size: 48px; }
+#empty-state p { font-size: 14px; }
+
+/* ── FLASHCARD FAB ── */
+#fab-wrap {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  z-index: 50;
+}
+.fab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 28px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  transition: transform 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+.fab-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+.fab-btn:active { transform: translateY(0); }
+.fab-new  { background: var(--new);       color: #fff; }
+.fab-rev  { background: var(--reviewing); color: #fff; }
+.fab-mas  { background: var(--mastered);  color: #fff; }
+.fab-btn .fab-count {
+  background: rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+/* ── FLASHCARD OVERLAY ── */
+#fc-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay-bg);
+  z-index: 300;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+#fc-overlay.open { display: flex; }
+
+#fc-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 480px;
+  max-width: 94vw;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalIn 0.2s ease;
+}
+
+/* progress bar */
+#fc-progress-wrap {
+  height: 4px;
+  background: var(--surface2);
+}
+#fc-progress-bar {
+  height: 4px;
+  background: var(--accent);
+  transition: width 0.35s ease;
+}
+
+#fc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 10px;
+}
+#fc-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+#fc-counter { font-size: 12px; color: var(--text-muted); }
+#fc-close-btn {
+  background: none; border: none;
+  color: var(--text-muted); font-size: 18px;
+  cursor: pointer; line-height: 1;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; transition: background 0.15s;
+}
+#fc-close-btn:hover { background: var(--surface2); color: var(--text); }
+
+/* card area */
+#fc-card {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 32px;
+  gap: 10px;
+  text-align: center;
+}
+#fc-char {
+  font-size: 96px;
+  line-height: 1;
+  font-weight: 400;
+}
+#fc-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* back side */
+#fc-back {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+#fc-back.show { display: flex; }
+.fc-reading-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  justify-content: center;
+}
+.fc-rl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; width: 72px; text-align: right; flex-shrink: 0; }
+.fc-rv { font-size: 16px; font-weight: 600; }
+#fc-meaning-box {
+  margin-top: 8px;
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: left;
+}
+#fc-meaning-box .fc-m-main { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+#fc-meaning-box .fc-m-compounds { color: var(--text-muted); font-size: 12px; }
+
+/* footer buttons */
+#fc-footer {
+  padding: 16px 18px 20px;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+}
+/* ── INPUT MODE ── */
+#fc-input-wrap {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+}
+#fc-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+#fc-input:focus { border-color: var(--accent); }
+#fc-input::placeholder { color: var(--text-muted); font-size: 13px; }
+#fc-input.fc-input-correct { border-color: var(--mastered); background: rgba(16,185,129,0.07); }
+#fc-input.fc-input-wrong   { border-color: #ef4444;         background: rgba(239,68,68,0.07); }
+#fc-submit-btn {
+  padding: 11px 18px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+#fc-submit-btn:hover { opacity: 0.85; }
+#fc-submit-btn:disabled { opacity: 0.4; cursor: default; }
+#fc-feedback {
+  font-size: 14px;
+  font-weight: 600;
+  min-height: 22px;
+}
+.fc-feedback-correct { color: var(--mastered); }
+.fc-feedback-wrong   { color: #ef4444; }
+#fc-next-btn {
+  flex: 1;
+  padding: 12px;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: none;
+}
+#fc-next-btn:hover { background: var(--border); }
+
+/* summary screen */
+#fc-summary {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+  gap: 12px;
+  min-height: 300px;
+}
+#fc-summary.show { display: flex; }
+#fc-summary .sum-icon { font-size: 52px; }
+#fc-summary h3 { font-size: 20px; }
+#fc-summary p { font-size: 13px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+.sum-stats {
+  display: flex;
+  gap: 12px;
+  margin: 8px 0;
+}
+.sum-stat {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 10px 18px;
+  text-align: center;
+  min-width: 80px;
+}
+.sum-stat .sv { font-size: 24px; font-weight: 700; }
+.sum-stat .sl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+#fc-restart-btn {
+  padding: 11px 28px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+kbd {
+  display: inline-block;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: inherit;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* ── BULK ADD ── */
+#btn-bulk {
+  padding: 8px 14px;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+#btn-bulk:hover { border-color: var(--accent); color: var(--accent); }
+
+#bulk-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay-bg);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+#bulk-overlay.open { display: flex; }
+
+#bulk-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 500px;
+  max-width: 94vw;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: modalIn 0.2s ease;
+}
+#bulk-modal h3 { font-size: 17px; }
+.bulk-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+#bulk-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 18px;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  line-height: 1.8;
+  transition: border-color 0.2s;
+}
+#bulk-input:focus { border-color: var(--accent); }
+
+#bulk-preview {
+  font-size: 13px;
+  min-height: 24px;
+  line-height: 1.7;
+}
+#bulk-preview .p-new { color: #10b981; }
+#bulk-preview .p-dup { color: var(--text-muted); }
+#bulk-preview .p-chars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+#bulk-preview .p-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 16px;
+}
+#bulk-preview .p-chip.is-dup {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+/* ── THEME TOGGLE ── */
+#btn-theme {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+#btn-theme:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── LIGHT MODE GRAPH ── */
+body.light #graph-svg { background: var(--bg); }
+body.light .note-text { border-left-color: var(--accent); }
+body.light select option { background: var(--surface); color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div id="header">
+  <div id="logo">漢字 <span class="accent">Kho</span><span class="sub">Hán Tự Cá Nhân</span></div>
+
+  <input id="search-box" type="text" placeholder="🔍  Tìm chữ, âm, nghĩa, bộ thủ..." />
+
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="setView('graph', this)">◉ Đồ thị</button>
+    <button class="view-btn" onclick="setView('list', this)">≡ Danh sách</button>
+  </div>
+
+  <div class="header-filters">
+    <button class="filter-btn status-btn f-all active-filter" onclick="setFilter('all', this)">Tất cả</button>
+    <button class="filter-btn status-btn f-new" onclick="setFilter('new', this)">Mới</button>
+    <button class="filter-btn status-btn f-reviewing" onclick="setFilter('reviewing', this)">Đang ôn</button>
+    <button class="filter-btn status-btn f-mastered" onclick="setFilter('mastered', this)">Đã thuộc</button>
+  </div>
+
+  <div style="display:flex;gap:6px">
+    <button class="filter-btn" onclick="exportData()" title="Tải file backup JSON về máy">↓ Export</button>
+    <button class="filter-btn" onclick="document.getElementById('import-input').click()" title="Nạp file backup JSON">↑ Import</button>
+    <input id="import-input" type="file" accept=".json" style="display:none" onchange="importData(this)">
+  </div>
+
+  <button id="btn-theme" onclick="toggleTheme()" title="Đổi sáng / tối">🌙</button>
+
+  <button id="btn-bulk" onclick="openBulk()" title="Dán danh sách chữ Hán để thêm hàng loạt">⊕ Thêm hàng loạt</button>
+  <button id="btn-add" onclick="openModal()">+ Thêm chữ</button>
+</div>
+
+<!-- ── MAIN ── -->
+<div id="main">
+
+  <!-- GRAPH VIEW -->
+  <div id="graph-view">
+    <svg id="graph-svg"></svg>
+
+    <div id="stats">
+      <div class="stat-chip"><b id="s-total">0</b> chữ</div>
+      <div class="stat-chip" style="color:#818cf8"><b id="s-new">0</b> mới</div>
+      <div class="stat-chip" style="color:#fbbf24"><b id="s-rev">0</b> đang ôn</div>
+      <div class="stat-chip" style="color:#34d399"><b id="s-mas">0</b> thuộc</div>
+    </div>
+
+    <div id="legend">
+      <div class="leg-title">Node</div>
+      <div class="leg-row"><div class="leg-dot" style="background:#6366f1"></div> Mới học</div>
+      <div class="leg-row"><div class="leg-dot" style="background:#f59e0b"></div> Đang ôn</div>
+      <div class="leg-row"><div class="leg-dot" style="background:#10b981"></div> Đã thuộc</div>
+      <div class="leg-sep"></div>
+      <div class="leg-title">Kết nối <span style="font-size:9px;color:var(--text-muted);font-weight:400">(bấm để ẩn/hiện)</span></div>
+      <div class="leg-row leg-edge" id="leg-radical" onclick="toggleEdge('radical',this)"><div class="leg-line" style="background:#8b5cf6"></div> Cùng bộ thủ</div>
+      <div class="leg-row leg-edge" id="leg-sound" onclick="toggleEdge('sound',this)"><div class="leg-line" style="background:#f59e0b;opacity:.7"></div> Đồng âm HV</div>
+      <div class="leg-row leg-edge" id="leg-compound" onclick="toggleEdge('compound',this)"><div class="leg-line" style="background:#14b8a6"></div> Từ ghép chung</div>
+    </div>
+
+    <div id="hint">Scroll để zoom · Kéo để pan · Click node để xem chi tiết</div>
+    <div id="empty-state">
+      <div class="big">漢</div>
+      <p>Chưa có chữ nào. Nhấn <strong>+ Thêm chữ</strong> để bắt đầu!</p>
+    </div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div id="list-view">
+    <table class="list-table">
+      <thead>
+        <tr>
+          <th>Chữ</th>
+          <th class="sortable" id="th-hanViet"   onclick="sortBy('hanViet')">Hán Việt</th>
+          <th class="sortable" id="th-pinyin"    onclick="sortBy('pinyin')">Pinyin</th>
+          <th class="sortable" id="th-jyutping"  onclick="sortBy('jyutping')">Jyutping</th>
+          <th>Nghĩa</th>
+          <th>Bộ thủ</th>
+          <th>Trạng thái</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="list-body"></tbody>
+    </table>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div id="detail-panel">
+    <div id="detail-scroll">
+      <div id="detail-header">
+        <button id="detail-close" onclick="closeDetail()">✕</button>
+        <span id="detail-char">文</span>
+        <div id="detail-readings"></div>
+      </div>
+      <div id="detail-body"></div>
+      <div class="detail-actions">
+        <button class="btn-edit" onclick="editCurrent()">✎ Chỉnh sửa</button>
+        <button class="btn-delete" onclick="deleteCurrent()">✕ Xóa</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAB FLASHCARD BUTTONS -->
+<div id="fab-wrap">
+  <button class="fab-btn fab-new" onclick="startFlashcard('new')">
+    ✦ Học mới <span class="fab-count" id="fab-count-new">0</span>
+  </button>
+  <button class="fab-btn fab-rev" onclick="startFlashcard('reviewing')">
+    ↻ Ôn tập <span class="fab-count" id="fab-count-rev">0</span>
+  </button>
+  <button class="fab-btn fab-mas" onclick="startFlashcard('mastered')">
+    ★ Kiểm tra <span class="fab-count" id="fab-count-mas">0</span>
+  </button>
+</div>
+
+<!-- FLASHCARD OVERLAY -->
+<div id="fc-overlay">
+  <div id="fc-box">
+    <div id="fc-progress-wrap"><div id="fc-progress-bar" style="width:0%"></div></div>
+
+    <div id="fc-top">
+      <span id="fc-label">Học mới</span>
+      <span id="fc-counter">1 / 10</span>
+      <button id="fc-close-btn" onclick="closeFlashcard()">✕</button>
+    </div>
+
+    <!-- CARD -->
+    <div id="fc-card">
+      <div id="fc-char">文</div>
+      <div id="fc-input-wrap">
+        <input id="fc-input" type="text" placeholder="Hán Việt..." autocomplete="off" spellcheck="false"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();submitAnswer();}">
+        <button id="fc-submit-btn" onclick="submitAnswer()">Kiểm tra</button>
+      </div>
+      <div id="fc-feedback"></div>
+      <div id="fc-back">
+        <div class="fc-reading-row"><span class="fc-rl">Hán Việt</span><span class="fc-rv" id="fc-rv-hv">—</span></div>
+        <div class="fc-reading-row"><span class="fc-rl">Phổ Thông</span><span class="fc-rv" id="fc-rv-py">—</span></div>
+        <div class="fc-reading-row"><span class="fc-rl">Quảng Đông</span><span class="fc-rv" id="fc-rv-jy">—</span></div>
+        <div id="fc-meaning-box">
+          <div class="fc-m-main" id="fc-m-main">—</div>
+          <div class="fc-m-compounds" id="fc-m-compounds"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div id="fc-summary">
+      <div class="sum-icon">🎉</div>
+      <h3>Xong buổi học!</h3>
+      <div class="sum-stats">
+        <div class="sum-stat"><div class="sv" id="sum-reviewing" style="color:#f59e0b">0</div><div class="sl" id="sum-lbl-reviewing">Đang ôn</div></div>
+        <div class="sum-stat"><div class="sv" id="sum-mastered" style="color:#10b981">0</div><div class="sl" id="sum-lbl-mastered">Đã thuộc</div></div>
+      </div>
+      <p id="sum-msg"></p>
+      <button id="fc-restart-btn" onclick="closeFlashcard()">Đóng & cập nhật graph</button>
+    </div>
+
+    <div id="fc-footer">
+      <button id="fc-next-btn" onclick="nextAfterAnswer()">Tiếp theo →</button>
+    </div>
+    <div id="fc-keys" style="text-align:center;padding:0 0 12px;font-size:10px;color:var(--text-muted);letter-spacing:0.5px">
+      <kbd>Enter</kbd> kiểm tra &nbsp;·&nbsp; <kbd>Del</kbd> quay lại
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip"></div>
+
+<!-- BULK ADD MODAL -->
+<div id="bulk-overlay">
+  <div id="bulk-modal">
+    <h3>⊕ Thêm hàng loạt</h3>
+    <p class="bulk-desc">Dán danh sách chữ Hán vào đây — cách nhau bằng dấu cách, dấu phẩy, hoặc xuống dòng.<br>Chữ đã có trong kho sẽ tự bỏ qua.</p>
+    <textarea id="bulk-input" rows="5" placeholder="爸 妈 哥 姐 弟 妹&#10;或&#10;愤怒,悲伤,快乐,恐惧"></textarea>
+    <div id="bulk-preview"></div>
+    <div id="modal-actions">
+      <button class="btn-cancel" onclick="closeBulk()">Hủy</button>
+      <button class="btn-save" id="bulk-confirm-btn" onclick="confirmBulk()">Thêm vào kho</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal">
+    <h3 id="modal-title">Thêm Hán tự mới</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Chữ Hán *</label>
+        <input id="f-char" placeholder="文" style="font-size:26px;text-align:center;padding:6px">
+      </div>
+      <div class="form-group">
+        <label>Âm Hán Việt *</label>
+        <input id="f-hanviet" placeholder="Văn">
+      </div>
+      <div class="form-group">
+        <label>Pinyin — Phổ Thông</label>
+        <input id="f-pinyin" placeholder="wén">
+      </div>
+      <div class="form-group">
+        <label>Jyutping — Quảng Đông</label>
+        <input id="f-jyutping" placeholder="man4">
+      </div>
+      <div class="form-group">
+        <label>Bộ thủ</label>
+        <input id="f-radical" placeholder="文">
+      </div>
+      <div class="form-group full">
+        <label>Nghĩa tiếng Việt *</label>
+        <input id="f-meaning" placeholder="Văn tự, chữ viết, văn hóa">
+      </div>
+      <div class="form-group full">
+        <label>Từ ghép — mỗi dòng: 文化 | văn hóa | văn hóa</label>
+        <textarea id="f-compounds" rows="3" placeholder="文化 | văn hóa | văn hóa&#10;文學 | văn học | văn học"></textarea>
+      </div>
+      <div class="form-group full">
+        <label>Ghi chú cá nhân</label>
+        <textarea id="f-notes" rows="2" placeholder="Liên tưởng, nguồn gốc, câu chuyện..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Trạng thái</label>
+        <select id="f-status">
+          <option value="new">Mới học</option>
+          <option value="reviewing">Đang ôn</option>
+          <option value="mastered">Đã thuộc</option>
+        </select>
+      </div>
+    </div>
+    <div id="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+      <button class="btn-save" onclick="saveChar()">Lưu chữ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// SAMPLE DATA
+// ═══════════════════════════════════════
+const SAMPLE = [
+  {
+    id:'1', char:'文', hanViet:'Văn', pinyin:'wén', jyutping:'man4',
+    meaning:'Văn tự, chữ viết, văn hóa, vẻ đẹp',
+    compounds:[{word:'文化',reading:'văn hóa',meaning:'văn hóa'},{word:'文學',reading:'văn học',meaning:'văn học'},{word:'文明',reading:'văn minh',meaning:'văn minh'}],
+    radical:'文', strokes:4, status:'mastered', notes:'Nghĩa gốc là hoa văn trên người, sau mở rộng thành chữ viết, văn chương. Một trong những bộ thủ ổn định nhất.'
+  },
+  {
+    id:'2', char:'化', hanViet:'Hóa', pinyin:'huà', jyutping:'faa3',
+    meaning:'Biến hóa, thay đổi, chuyển hóa',
+    compounds:[{word:'文化',reading:'văn hóa',meaning:'văn hóa'},{word:'化學',reading:'hóa học',meaning:'hóa học'},{word:'變化',reading:'biến hóa',meaning:'biến đổi'}],
+    radical:'匕', strokes:4, status:'reviewing', notes:''
+  },
+  {
+    id:'3', char:'人', hanViet:'Nhân', pinyin:'rén', jyutping:'jan4',
+    meaning:'Người, con người',
+    compounds:[{word:'人類',reading:'nhân loại',meaning:'nhân loại'},{word:'人文',reading:'nhân văn',meaning:'nhân văn'},{word:'個人',reading:'cá nhân',meaning:'cá nhân'}],
+    radical:'人', strokes:2, status:'mastered', notes:'Hình người đứng nhìn nghiêng. Khi đứng bên trái trở thành bộ 亻'
+  },
+  {
+    id:'4', char:'仁', hanViet:'Nhân', pinyin:'rén', jyutping:'jan4',
+    meaning:'Nhân từ, lòng thương người — đức hạnh Nho giáo',
+    compounds:[{word:'仁愛',reading:'nhân ái',meaning:'nhân ái'},{word:'仁義',reading:'nhân nghĩa',meaning:'nhân nghĩa'}],
+    radical:'亻', strokes:4, status:'new', notes:'亻(người) + 二(hai) = hai người bên nhau → tình người. Đây là khái niệm trung tâm của Nho học.'
+  },
+  {
+    id:'5', char:'學', hanViet:'Học', pinyin:'xué', jyutping:'hok6',
+    meaning:'Học, học tập, tri thức',
+    compounds:[{word:'學生',reading:'học sinh',meaning:'học sinh'},{word:'文學',reading:'văn học',meaning:'văn học'},{word:'大學',reading:'đại học',meaning:'đại học'}],
+    radical:'子', strokes:16, status:'mastered', notes:''
+  },
+  {
+    id:'6', char:'水', hanViet:'Thủy', pinyin:'shuǐ', jyutping:'seoi2',
+    meaning:'Nước',
+    compounds:[{word:'水平',reading:'thủy bình',meaning:'mức độ'},{word:'洪水',reading:'hồng thủy',meaning:'lũ lụt'}],
+    radical:'水', strokes:4, status:'mastered', notes:'Khi đứng bên trái thành bộ 氵(ba chấm nước). Bộ thủ rất phổ biến.'
+  },
+  {
+    id:'7', char:'河', hanViet:'Hà', pinyin:'hé', jyutping:'ho4',
+    meaning:'Sông, con sông',
+    compounds:[{word:'河流',reading:'hà lưu',meaning:'dòng sông'},{word:'山河',reading:'sơn hà',meaning:'sông núi'}],
+    radical:'氵', strokes:8, status:'reviewing', notes:'Bộ 氵(nước) + âm 可. Sông Hà — Hoàng Hà nổi tiếng.'
+  },
+  {
+    id:'8', char:'海', hanViet:'Hải', pinyin:'hǎi', jyutping:'hoi2',
+    meaning:'Biển, đại dương',
+    compounds:[{word:'海洋',reading:'hải dương',meaning:'đại dương'},{word:'上海',reading:'Thượng Hải',meaning:'tên thành phố'}],
+    radical:'氵', strokes:10, status:'reviewing', notes:''
+  },
+  {
+    id:'9', char:'心', hanViet:'Tâm', pinyin:'xīn', jyutping:'sam1',
+    meaning:'Lòng, tâm, trái tim',
+    compounds:[{word:'心理',reading:'tâm lý',meaning:'tâm lý'},{word:'中心',reading:'trung tâm',meaning:'trung tâm'},{word:'用心',reading:'dụng tâm',meaning:'chú tâm'}],
+    radical:'心', strokes:4, status:'mastered', notes:'Hình vẽ trái tim với mạch máu. Đứng bên trái thành bộ 忄(dọc tâm).'
+  },
+  {
+    id:'10', char:'愛', hanViet:'Ái', pinyin:'ài', jyutping:'oi3',
+    meaning:'Yêu, tình yêu, yêu thương',
+    compounds:[{word:'愛情',reading:'ái tình',meaning:'tình yêu'},{word:'仁愛',reading:'nhân ái',meaning:'nhân ái'}],
+    radical:'心', strokes:13, status:'new', notes:'Bộ tâm (心) ở giữa chữ → yêu xuất phát từ trái tim. Chữ phồn thể có bộ 心, chữ giản thể 爱 bỏ mất.'
+  }
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const KEY = 'hantu_v2';
+let data = [];
+let selectedId = null;
+let editingId = null;
+let currentView = 'graph';
+let statusFilter = 'all';
+let searchQuery  = '';
+let sortField    = null;   // 'hanViet' | 'pinyin' | 'jyutping'
+let sortDir      = 'asc';  // 'asc' | 'desc'
+let activeEdgeTypes = { radical: true, sound: true, compound: true };
+let simulation = null;
+let svg, g, linkLayer, nodeLayer;
+
+// ═══════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════
+const VOCAB_300 = [
+{char:'的',hanViet:'Đích',pinyin:'de / dí',jyutping:'dik1',meaning:'Trợ từ sở hữu, đánh dấu tính từ',compounds:[{word:'目的',reading:'mục đích',meaning:'mục đích'},{word:'的确',reading:'đích xác',meaning:'chắc chắn'}],radical:'白'},
+{char:'一',hanViet:'Nhất',pinyin:'yī',jyutping:'jat1',meaning:'Một; số 1',compounds:[{word:'一起',reading:'nhất khởi',meaning:'cùng nhau'},{word:'一样',reading:'nhất dạng',meaning:'giống nhau'}],radical:'一'},
+{char:'是',hanViet:'Thị',pinyin:'shì',jyutping:'si6',meaning:'Là; đúng vậy',compounds:[{word:'是否',reading:'thị phủ',meaning:'có hay không'},{word:'就是',reading:'tựu thị',meaning:'chính là'}],radical:'日'},
+{char:'不',hanViet:'Bất',pinyin:'bù',jyutping:'bat1',meaning:'Không; phủ định',compounds:[{word:'不是',reading:'bất thị',meaning:'không phải'},{word:'不好',reading:'bất hảo',meaning:'không tốt'}],radical:'一'},
+{char:'了',hanViet:'Liễu',pinyin:'le / liǎo',jyutping:'liu5',meaning:'Trợ từ hoàn thành; hiểu rõ',compounds:[{word:'了解',reading:'liễu giải',meaning:'hiểu rõ'},{word:'完了',reading:'hoàn liễu',meaning:'xong rồi'}],radical:'乙'},
+{char:'我',hanViet:'Ngã',pinyin:'wǒ',jyutping:'ngo5',meaning:'Tôi; ta',compounds:[{word:'我们',reading:'ngã môn',meaning:'chúng tôi'},{word:'自我',reading:'tự ngã',meaning:'bản thân'}],radical:'戈'},
+{char:'在',hanViet:'Tại',pinyin:'zài',jyutping:'zoi6',meaning:'Ở; đang; tại',compounds:[{word:'现在',reading:'hiện tại',meaning:'hiện tại'},{word:'存在',reading:'tồn tại',meaning:'tồn tại'}],radical:'土'},
+{char:'有',hanViet:'Hữu',pinyin:'yǒu',jyutping:'jau5',meaning:'Có; sở hữu',compounds:[{word:'有人',reading:'hữu nhân',meaning:'có người'},{word:'没有',reading:'một hữu',meaning:'không có'}],radical:'月'},
+{char:'他',hanViet:'Tha',pinyin:'tā',jyutping:'taa1',meaning:'Anh ấy; người khác',compounds:[{word:'他们',reading:'tha môn',meaning:'họ (nam)'},{word:'其他',reading:'kỳ tha',meaning:'khác'}],radical:'亻'},
+{char:'这',hanViet:'Giá',pinyin:'zhè',jyutping:'ze5',meaning:'Này; đây',compounds:[{word:'这里',reading:'giá lý',meaning:'ở đây'},{word:'这样',reading:'giá dạng',meaning:'như vậy'}],radical:'辶'},
+{char:'为',hanViet:'Vi / Vị',pinyin:'wéi / wèi',jyutping:'wai4',meaning:'Là; làm; vì',compounds:[{word:'因为',reading:'nhân vi',meaning:'vì (nguyên nhân)'},{word:'为什么',reading:'vi thập ma',meaning:'tại sao'}],radical:'丶'},
+{char:'之',hanViet:'Chi',pinyin:'zhī',jyutping:'zi1',meaning:'Của; đi (văn cổ)',compounds:[{word:'之间',reading:'chi gian',meaning:'giữa'},{word:'总之',reading:'tổng chi',meaning:'tóm lại'}],radical:'丿'},
+{char:'大',hanViet:'Đại',pinyin:'dà',jyutping:'daai6',meaning:'To; lớn; vĩ đại',compounds:[{word:'大学',reading:'đại học',meaning:'đại học'},{word:'大家',reading:'đại gia',meaning:'mọi người'}],radical:'大'},
+{char:'来',hanViet:'Lai',pinyin:'lái',jyutping:'loi4',meaning:'Đến; tới; lại',compounds:[{word:'来自',reading:'lai tự',meaning:'đến từ'},{word:'未来',reading:'vị lai',meaning:'tương lai'}],radical:'木'},
+{char:'以',hanViet:'Dĩ',pinyin:'yǐ',jyutping:'ji5',meaning:'Dùng; lấy; bởi',compounds:[{word:'以为',reading:'dĩ vi',meaning:'tưởng rằng'},{word:'所以',reading:'sở dĩ',meaning:'vì vậy'}],radical:'人'},
+{char:'个',hanViet:'Cá',pinyin:'gè',jyutping:'go3',meaning:'Lượng từ chỉ sự vật nói chung',compounds:[{word:'一个',reading:'nhất cá',meaning:'một cái'},{word:'个人',reading:'cá nhân',meaning:'cá nhân'}],radical:'人'},
+{char:'中',hanViet:'Trung',pinyin:'zhōng',jyutping:'zung1',meaning:'Giữa; trong; Trung Quốc',compounds:[{word:'中间',reading:'trung gian',meaning:'ở giữa'},{word:'中国',reading:'trung quốc',meaning:'Trung Quốc'}],radical:'丨'},
+{char:'上',hanViet:'Thượng',pinyin:'shàng',jyutping:'soeng5',meaning:'Trên; lên; bậc trên',compounds:[{word:'上面',reading:'thượng diện',meaning:'phía trên'},{word:'马上',reading:'mã thượng',meaning:'ngay lập tức'}],radical:'一'},
+{char:'们',hanViet:'Môn',pinyin:'men',jyutping:'mun4',meaning:'Hậu tố số nhiều',compounds:[{word:'我们',reading:'ngã môn',meaning:'chúng tôi'},{word:'你们',reading:'nễ môn',meaning:'các bạn'}],radical:'亻'},
+{char:'到',hanViet:'Đáo',pinyin:'dào',jyutping:'dou3',meaning:'Đến; tới; đạt được',compounds:[{word:'到达',reading:'đáo đạt',meaning:'đến nơi'},{word:'做到',reading:'tác đáo',meaning:'làm được'}],radical:'刀'},
+{char:'说',hanViet:'Thuyết',pinyin:'shuō',jyutping:'syut3',meaning:'Nói; giải thích',compounds:[{word:'说话',reading:'thuyết thoại',meaning:'nói chuyện'},{word:'听说',reading:'thính thuyết',meaning:'nghe nói'}],radical:'讠'},
+{char:'国',hanViet:'Quốc',pinyin:'guó',jyutping:'gwok3',meaning:'Nước; quốc gia',compounds:[{word:'国家',reading:'quốc gia',meaning:'quốc gia'},{word:'外国',reading:'ngoại quốc',meaning:'nước ngoài'}],radical:'囗'},
+{char:'和',hanViet:'Hòa',pinyin:'hé',jyutping:'wo4',meaning:'Và; cùng; hòa bình',compounds:[{word:'和平',reading:'hòa bình',meaning:'hòa bình'},{word:'温和',reading:'ôn hòa',meaning:'ôn hòa'}],radical:'口'},
+{char:'地',hanViet:'Địa',pinyin:'dì / de',jyutping:'dei6',meaning:'Đất; địa; trạng từ hóa',compounds:[{word:'地方',reading:'địa phương',meaning:'địa phương'},{word:'土地',reading:'thổ địa',meaning:'đất đai'}],radical:'土'},
+{char:'也',hanViet:'Dã',pinyin:'yě',jyutping:'jaa5',meaning:'Cũng; nữa',compounds:[{word:'也是',reading:'dã thị',meaning:'cũng là'},{word:'也许',reading:'dã hứa',meaning:'có lẽ'}],radical:'乙'},
+{char:'时',hanViet:'Thời',pinyin:'shí',jyutping:'si4',meaning:'Thời gian; khi; giờ',compounds:[{word:'时间',reading:'thời gian',meaning:'thời gian'},{word:'有时',reading:'hữu thời',meaning:'đôi khi'}],radical:'日'},
+{char:'出',hanViet:'Xuất',pinyin:'chū',jyutping:'ceot1',meaning:'Ra; xuất; phát ra',compounds:[{word:'出来',reading:'xuất lai',meaning:'đi ra'},{word:'出现',reading:'xuất hiện',meaning:'xuất hiện'}],radical:'凵'},
+{char:'而',hanViet:'Nhi',pinyin:'ér',jyutping:'ji4',meaning:'Mà; và; còn (nối câu)',compounds:[{word:'而且',reading:'nhi thả',meaning:'hơn nữa'},{word:'然而',reading:'nhiên nhi',meaning:'tuy nhiên'}],radical:'而'},
+{char:'要',hanViet:'Yếu',pinyin:'yào',jyutping:'jiu3',meaning:'Muốn; cần; quan trọng',compounds:[{word:'需要',reading:'nhu yếu',meaning:'cần'},{word:'重要',reading:'trọng yếu',meaning:'quan trọng'}],radical:'覀'},
+{char:'就',hanViet:'Tựu',pinyin:'jiù',jyutping:'zau6',meaning:'Thì; chính; liền',compounds:[{word:'就是',reading:'tựu thị',meaning:'chính là'},{word:'就算',reading:'tựu toán',meaning:'dù cho'}],radical:'尢'},
+{char:'下',hanViet:'Hạ',pinyin:'xià',jyutping:'haa6',meaning:'Dưới; xuống; bậc dưới',compounds:[{word:'下面',reading:'hạ diện',meaning:'phía dưới'},{word:'以下',reading:'dĩ hạ',meaning:'dưới đây'}],radical:'一'},
+{char:'得',hanViet:'Đắc / Đắc',pinyin:'dé / de / děi',jyutping:'dak1',meaning:'Được; đạt; trợ từ',compounds:[{word:'得到',reading:'đắc đáo',meaning:'đạt được'},{word:'觉得',reading:'giác đắc',meaning:'cảm thấy'}],radical:'彳'},
+{char:'可',hanViet:'Khả',pinyin:'kě',jyutping:'ho2',meaning:'Có thể; được; khả năng',compounds:[{word:'可以',reading:'khả dĩ',meaning:'có thể'},{word:'可能',reading:'khả năng',meaning:'có thể / khả năng'}],radical:'口'},
+{char:'那',hanViet:'Na',pinyin:'nà',jyutping:'no1',meaning:'Kia; đó; ấy',compounds:[{word:'那里',reading:'na lý',meaning:'ở đó'},{word:'那样',reading:'na dạng',meaning:'như vậy'}],radical:'阝'},
+{char:'年',hanViet:'Niên',pinyin:'nián',jyutping:'nin4',meaning:'Năm; tuổi; niên đại',compounds:[{word:'今年',reading:'kim niên',meaning:'năm nay'},{word:'明年',reading:'minh niên',meaning:'năm sau'}],radical:'干'},
+{char:'生',hanViet:'Sinh',pinyin:'shēng',jyutping:'saang1',meaning:'Sống; sinh; học sinh',compounds:[{word:'生活',reading:'sinh hoạt',meaning:'cuộc sống'},{word:'学生',reading:'học sinh',meaning:'học sinh'}],radical:'生'},
+{char:'她',hanViet:'Tha',pinyin:'tā',jyutping:'taa1',meaning:'Cô ấy; bà ấy',compounds:[{word:'她们',reading:'tha môn',meaning:'họ (nữ)'}],radical:'女'},
+{char:'过',hanViet:'Quá',pinyin:'guò',jyutping:'gwo3',meaning:'Qua; vượt qua; trải qua',compounds:[{word:'经过',reading:'kinh quá',meaning:'đi qua / trải qua'},{word:'不过',reading:'bất quá',meaning:'nhưng mà'}],radical:'辶'},
+{char:'去',hanViet:'Khứ',pinyin:'qù',jyutping:'heoi3',meaning:'Đi; rời khỏi',compounds:[{word:'去年',reading:'khứ niên',meaning:'năm ngoái'},{word:'回去',reading:'hồi khứ',meaning:'quay về'}],radical:'土'},
+{char:'发',hanViet:'Phát',pinyin:'fā / fà',jyutping:'faat3',meaning:'Phát ra; gửi; tóc',compounds:[{word:'发现',reading:'phát hiện',meaning:'phát hiện'},{word:'出发',reading:'xuất phát',meaning:'khởi hành'}],radical:'又'},
+{char:'都',hanViet:'Đô / Đô',pinyin:'dōu / dū',jyutping:'dou1',meaning:'Đều; tất cả; thủ đô',compounds:[{word:'首都',reading:'thủ đô',meaning:'thủ đô'},{word:'都是',reading:'đô thị',meaning:'đều là'}],radical:'阝'},
+{char:'么',hanViet:'Ma',pinyin:'me / mo',jyutping:'mo1',meaning:'Trợ từ nghi vấn; sao',compounds:[{word:'什么',reading:'thập ma',meaning:'cái gì'},{word:'为什么',reading:'vi thập ma',meaning:'tại sao'}],radical:'幺'},
+{char:'后',hanViet:'Hậu',pinyin:'hòu',jyutping:'hau6',meaning:'Sau; phía sau; hậu',compounds:[{word:'以后',reading:'dĩ hậu',meaning:'sau này'},{word:'最后',reading:'tối hậu',meaning:'cuối cùng'}],radical:'口'},
+{char:'多',hanViet:'Đa',pinyin:'duō',jyutping:'do1',meaning:'Nhiều; đa số',compounds:[{word:'很多',reading:'ngận đa',meaning:'rất nhiều'},{word:'多少',reading:'đa thiểu',meaning:'bao nhiêu'}],radical:'夕'},
+{char:'好',hanViet:'Hảo',pinyin:'hǎo',jyutping:'hou2',meaning:'Tốt; hay; thích',compounds:[{word:'好像',reading:'hảo tượng',meaning:'có vẻ như'},{word:'友好',reading:'hữu hảo',meaning:'thân thiện'}],radical:'女'},
+{char:'小',hanViet:'Tiểu',pinyin:'xiǎo',jyutping:'siu2',meaning:'Nhỏ; bé; ít',compounds:[{word:'小时',reading:'tiểu thời',meaning:'tiếng đồng hồ'},{word:'小心',reading:'tiểu tâm',meaning:'cẩn thận'}],radical:'小'},
+{char:'知',hanViet:'Tri',pinyin:'zhī',jyutping:'zi1',meaning:'Biết; hiểu; nhận thức',compounds:[{word:'知道',reading:'tri đạo',meaning:'biết'},{word:'知识',reading:'tri thức',meaning:'kiến thức'}],radical:'矢'},
+{char:'能',hanViet:'Năng',pinyin:'néng',jyutping:'nang4',meaning:'Có thể; năng lực; tài năng',compounds:[{word:'能力',reading:'năng lực',meaning:'năng lực'},{word:'可能',reading:'khả năng',meaning:'có thể'}],radical:'厶'},
+{char:'自',hanViet:'Tự',pinyin:'zì',jyutping:'zi6',meaning:'Tự; bản thân; từ',compounds:[{word:'自己',reading:'tự kỷ',meaning:'bản thân'},{word:'自然',reading:'tự nhiên',meaning:'tự nhiên'}],radical:'自'},
+{char:'对',hanViet:'Đối',pinyin:'duì',jyutping:'deoi3',meaning:'Đối; đúng; với',compounds:[{word:'对话',reading:'đối thoại',meaning:'đối thoại'},{word:'反对',reading:'phản đối',meaning:'phản đối'}],radical:'又'},
+{char:'现',hanViet:'Hiện',pinyin:'xiàn',jyutping:'jin6',meaning:'Hiện; xuất hiện; bây giờ',compounds:[{word:'现在',reading:'hiện tại',meaning:'bây giờ'},{word:'出现',reading:'xuất hiện',meaning:'xuất hiện'}],radical:'王'},
+{char:'天',hanViet:'Thiên',pinyin:'tiān',jyutping:'tin1',meaning:'Trời; ngày; thiên nhiên',compounds:[{word:'天气',reading:'thiên khí',meaning:'thời tiết'},{word:'今天',reading:'kim thiên',meaning:'hôm nay'}],radical:'大'},
+{char:'会',hanViet:'Hội',pinyin:'huì',jyutping:'wui5',meaning:'Biết; có thể; hội họp',compounds:[{word:'社会',reading:'xã hội',meaning:'xã hội'},{word:'机会',reading:'cơ hội',meaning:'cơ hội'}],radical:'人'},
+{char:'想',hanViet:'Tưởng',pinyin:'xiǎng',jyutping:'soeng2',meaning:'Nghĩ; muốn; nhớ',compounds:[{word:'思想',reading:'tư tưởng',meaning:'tư tưởng'},{word:'想法',reading:'tưởng pháp',meaning:'ý kiến'}],radical:'心'},
+{char:'用',hanViet:'Dụng',pinyin:'yòng',jyutping:'jung6',meaning:'Dùng; sử dụng; tác dụng',compounds:[{word:'使用',reading:'sử dụng',meaning:'sử dụng'},{word:'用心',reading:'dụng tâm',meaning:'chú tâm'}],radical:'用'},
+{char:'把',hanViet:'Bả',pinyin:'bǎ',jyutping:'baa2',meaning:'Cầm; cái tay cầm; giới từ chỉ tân ngữ trực tiếp',compounds:[{word:'把握',reading:'bả ác',meaning:'nắm chắc'},{word:'把手',reading:'bả thủ',meaning:'tay nắm / bắt tay'}],radical:'手'},
+{char:'然',hanViet:'Nhiên',pinyin:'rán',jyutping:'jin4',meaning:'Như vậy; tự nhiên; đương nhiên',compounds:[{word:'自然',reading:'tự nhiên',meaning:'tự nhiên'},{word:'虽然',reading:'tuy nhiên',meaning:'tuy nhiên'}],radical:'火'},
+{char:'方',hanViet:'Phương',pinyin:'fāng',jyutping:'fong1',meaning:'Phương hướng; phương pháp; vuông',compounds:[{word:'方法',reading:'phương pháp',meaning:'phương pháp'},{word:'地方',reading:'địa phương',meaning:'nơi chốn'}],radical:'方'},
+{char:'里',hanViet:'Lý',pinyin:'lǐ',jyutping:'lei5',meaning:'Trong; ở trong; dặm (đo lường)',compounds:[{word:'这里',reading:'giá lý',meaning:'ở đây'},{word:'心里',reading:'tâm lý',meaning:'trong lòng'}],radical:'里'},
+{char:'已',hanViet:'Dĩ',pinyin:'yǐ',jyutping:'ji5',meaning:'Đã; rồi; xong',compounds:[{word:'已经',reading:'dĩ kinh',meaning:'đã'},{word:'已知',reading:'dĩ tri',meaning:'đã biết'}],radical:'己'},
+{char:'没',hanViet:'Một',pinyin:'méi / mò',jyutping:'mut6',meaning:'Không có; chìm; chưa',compounds:[{word:'没有',reading:'một hữu',meaning:'không có'},{word:'没关系',reading:'một quan hệ',meaning:'không sao'}],radical:'氵'},
+{char:'还',hanViet:'Hoàn',pinyin:'hái / huán',jyutping:'waan4',meaning:'Còn; vẫn; trả lại',compounds:[{word:'还是',reading:'hoàn thị',meaning:'vẫn là / hay là'},{word:'还有',reading:'hoàn hữu',meaning:'còn có'}],radical:'辶'},
+{char:'看',hanViet:'Khán',pinyin:'kàn',jyutping:'hon3',meaning:'Xem; nhìn; đọc',compounds:[{word:'看书',reading:'khán thư',meaning:'đọc sách'},{word:'看起来',reading:'khán khởi lai',meaning:'trông có vẻ'}],radical:'目'},
+{char:'从',hanViet:'Tùng',pinyin:'cóng',jyutping:'cung4',meaning:'Từ; theo; từng',compounds:[{word:'从来',reading:'tùng lai',meaning:'từ trước đến nay'},{word:'从事',reading:'tùng sự',meaning:'theo đuổi / làm'}],radical:'人'},
+{char:'如',hanViet:'Như',pinyin:'rú',jyutping:'jyu4',meaning:'Như; giống; nếu',compounds:[{word:'如果',reading:'như quả',meaning:'nếu'},{word:'如何',reading:'như hà',meaning:'như thế nào'}],radical:'女'},
+{char:'两',hanViet:'Lưỡng',pinyin:'liǎng',jyutping:'loeng5',meaning:'Hai; cả hai; lạng (đo lường)',compounds:[{word:'两个',reading:'lưỡng cá',meaning:'hai cái'},{word:'两边',reading:'lưỡng biên',meaning:'hai bên'}],radical:'一'},
+{char:'什',hanViet:'Thập',pinyin:'shén',jyutping:'sap6',meaning:'Cái gì (dùng trong 什么)',compounds:[{word:'什么',reading:'thập ma',meaning:'cái gì'},{word:'为什么',reading:'vi thập ma',meaning:'tại sao'}],radical:'人'},
+{char:'工',hanViet:'Công',pinyin:'gōng',jyutping:'gung1',meaning:'Công việc; thợ; làm việc',compounds:[{word:'工作',reading:'công tác',meaning:'công việc'},{word:'工人',reading:'công nhân',meaning:'công nhân'}],radical:'工'},
+{char:'打',hanViet:'Đả',pinyin:'dǎ',jyutping:'daa2',meaning:'Đánh; gọi điện; chơi',compounds:[{word:'打电话',reading:'đả điện thoại',meaning:'gọi điện'},{word:'打算',reading:'đả toán',meaning:'dự định'}],radical:'手'},
+{char:'事',hanViet:'Sự',pinyin:'shì',jyutping:'si6',meaning:'Việc; sự việc; chuyện',compounds:[{word:'事情',reading:'sự tình',meaning:'sự việc'},{word:'故事',reading:'cố sự',meaning:'câu chuyện'}],radical:'亅'},
+{char:'问',hanViet:'Vấn',pinyin:'wèn',jyutping:'man6',meaning:'Hỏi; câu hỏi; vấn đề',compounds:[{word:'问题',reading:'vấn đề',meaning:'vấn đề'},{word:'询问',reading:'tuân vấn',meaning:'hỏi thăm'}],radical:'口'},
+{char:'被',hanViet:'Bị',pinyin:'bèi',jyutping:'bei6',meaning:'Bị (bị động); chăn; bị phủ',compounds:[{word:'被动',reading:'bị động',meaning:'bị động'},{word:'被迫',reading:'bị bức',meaning:'bị ép buộc'}],radical:'衤'},
+{char:'长',hanViet:'Trường / Trưởng',pinyin:'cháng / zhǎng',jyutping:'coeng4',meaning:'Dài; lớn lên; trưởng',compounds:[{word:'长时间',reading:'trường thời gian',meaning:'thời gian dài'},{word:'成长',reading:'thành trưởng',meaning:'trưởng thành'}],radical:'长'},
+{char:'家',hanViet:'Gia',pinyin:'jiā',jyutping:'gaa1',meaning:'Nhà; gia đình; chuyên gia',compounds:[{word:'家人',reading:'gia nhân',meaning:'người nhà'},{word:'国家',reading:'quốc gia',meaning:'quốc gia'}],radical:'宀'},
+{char:'做',hanViet:'Tác',pinyin:'zuò',jyutping:'zou6',meaning:'Làm; chế tạo; đóng vai',compounds:[{word:'做到',reading:'tác đáo',meaning:'làm được'},{word:'工作',reading:'công tác',meaning:'công việc'}],radical:'亻'},
+{char:'向',hanViet:'Hướng',pinyin:'xiàng',jyutping:'hoeng3',meaning:'Hướng về; phía; về phía',compounds:[{word:'方向',reading:'phương hướng',meaning:'phương hướng'},{word:'向上',reading:'hướng thượng',meaning:'hướng lên'}],radical:'口'},
+{char:'回',hanViet:'Hồi',pinyin:'huí',jyutping:'wui4',meaning:'Quay về; trả lời; lần',compounds:[{word:'回来',reading:'hồi lai',meaning:'quay lại'},{word:'回答',reading:'hồi đáp',meaning:'trả lời'}],radical:'囗'},
+{char:'让',hanViet:'Nhượng',pinyin:'ràng',jyutping:'joeng6',meaning:'Nhường; để; cho phép',compounds:[{word:'让步',reading:'nhượng bộ',meaning:'nhượng bộ'},{word:'让开',reading:'nhượng khai',meaning:'tránh ra'}],radical:'讠'},
+{char:'因',hanViet:'Nhân',pinyin:'yīn',jyutping:'jan1',meaning:'Vì; nguyên nhân; nhân tố',compounds:[{word:'因为',reading:'nhân vi',meaning:'vì'},{word:'原因',reading:'nguyên nhân',meaning:'nguyên nhân'}],radical:'囗'},
+{char:'所',hanViet:'Sở',pinyin:'suǒ',jyutping:'so2',meaning:'Nơi; sở; điều',compounds:[{word:'所以',reading:'sở dĩ',meaning:'vì vậy'},{word:'所有',reading:'sở hữu',meaning:'tất cả / sở hữu'}],radical:'户'},
+{char:'很',hanViet:'Ngận',pinyin:'hěn',jyutping:'han2',meaning:'Rất; khá',compounds:[{word:'很多',reading:'ngận đa',meaning:'rất nhiều'},{word:'很好',reading:'ngận hảo',meaning:'rất tốt'}],radical:'彳'},
+{char:'但',hanViet:'Đãn',pinyin:'dàn',jyutping:'daan6',meaning:'Nhưng; chỉ; duy',compounds:[{word:'但是',reading:'đãn thị',meaning:'nhưng'},{word:'不但',reading:'bất đãn',meaning:'không chỉ'}],radical:'亻'},
+{char:'种',hanViet:'Chủng',pinyin:'zhǒng / zhòng',jyutping:'zung2',meaning:'Loại; giống; trồng',compounds:[{word:'种类',reading:'chủng loại',meaning:'chủng loại'},{word:'各种',reading:'các chủng',meaning:'các loại'}],radical:'禾'},
+{char:'起',hanViet:'Khởi',pinyin:'qǐ',jyutping:'hei2',meaning:'Dậy; bắt đầu; nổi lên',compounds:[{word:'起来',reading:'khởi lai',meaning:'đứng dậy'},{word:'一起',reading:'nhất khởi',meaning:'cùng nhau'}],radical:'走'},
+{char:'只',hanViet:'Chỉ',pinyin:'zhǐ / zhī',jyutping:'zi2',meaning:'Chỉ; duy nhất; lượng từ chim thú',compounds:[{word:'只有',reading:'chỉ hữu',meaning:'chỉ có'},{word:'只是',reading:'chỉ thị',meaning:'chỉ là'}],radical:'口'},
+{char:'先',hanViet:'Tiên',pinyin:'xiān',jyutping:'sin1',meaning:'Trước; đầu tiên; tiên nhân',compounds:[{word:'先生',reading:'tiên sinh',meaning:'thầy giáo / ông'},{word:'首先',reading:'thủ tiên',meaning:'trước tiên'}],radical:'儿'},
+{char:'你',hanViet:'Nễ',pinyin:'nǐ',jyutping:'nei5',meaning:'Bạn; anh; chị (ngôi thứ 2)',compounds:[{word:'你好',reading:'nễ hảo',meaning:'xin chào'},{word:'你们',reading:'nễ môn',meaning:'các bạn'}],radical:'亻'},
+{char:'当',hanViet:'Đương',pinyin:'dāng / dàng',jyutping:'dong1',meaning:'Khi; làm; đương; thích hợp',compounds:[{word:'当时',reading:'đương thời',meaning:'lúc đó'},{word:'当然',reading:'đương nhiên',meaning:'đương nhiên'}],radical:'彐'},
+{char:'老',hanViet:'Lão',pinyin:'lǎo',jyutping:'lou5',meaning:'Già; lâu; luôn',compounds:[{word:'老师',reading:'lão sư',meaning:'giáo viên'},{word:'老人',reading:'lão nhân',meaning:'người già'}],radical:'老'},
+{char:'日',hanViet:'Nhật',pinyin:'rì',jyutping:'jat6',meaning:'Ngày; mặt trời; Nhật Bản',compounds:[{word:'日本',reading:'nhật bổn',meaning:'Nhật Bản'},{word:'日子',reading:'nhật tử',meaning:'ngày tháng'}],radical:'日'},
+{char:'告',hanViet:'Cáo',pinyin:'gào',jyutping:'gou3',meaning:'Báo; kể; tố cáo',compounds:[{word:'告诉',reading:'cáo tố',meaning:'nói với; cho biết'},{word:'报告',reading:'báo cáo',meaning:'báo cáo'}],radical:'口'},
+{char:'次',hanViet:'Thứ',pinyin:'cì',jyutping:'ci3',meaning:'Lần; thứ; thứ tự',compounds:[{word:'这次',reading:'giá thứ',meaning:'lần này'},{word:'多次',reading:'đa thứ',meaning:'nhiều lần'}],radical:'欠'},
+{char:'必',hanViet:'Tất',pinyin:'bì',jyutping:'bit1',meaning:'Nhất định; tất yếu',compounds:[{word:'必须',reading:'tất tu',meaning:'phải; bắt buộc'},{word:'必要',reading:'tất yếu',meaning:'cần thiết'}],radical:'心'},
+{char:'相',hanViet:'Tương / Tướng',pinyin:'xiāng / xiàng',jyutping:'soeng1',meaning:'Lẫn nhau; tướng mạo',compounds:[{word:'相同',reading:'tương đồng',meaning:'giống nhau'},{word:'相信',reading:'tương tín',meaning:'tin tưởng'}],radical:'木'},
+{char:'三',hanViet:'Tam',pinyin:'sān',jyutping:'saam1',meaning:'Ba; số 3',compounds:[{word:'三月',reading:'tam nguyệt',meaning:'tháng ba'},{word:'第三',reading:'đệ tam',meaning:'thứ ba'}],radical:'一'},
+{char:'本',hanViet:'Bổn / Bản',pinyin:'běn',jyutping:'bun2',meaning:'Gốc; bổn; sách (lượng từ)',compounds:[{word:'日本',reading:'nhật bổn',meaning:'Nhật Bản'},{word:'本来',reading:'bổn lai',meaning:'vốn dĩ'}],radical:'木'},
+{char:'手',hanViet:'Thủ',pinyin:'shǒu',jyutping:'sau2',meaning:'Tay; thủ; người giỏi',compounds:[{word:'手机',reading:'thủ cơ',meaning:'điện thoại di động'},{word:'握手',reading:'ác thủ',meaning:'bắt tay'}],radical:'手'},
+{char:'间',hanViet:'Gian',pinyin:'jiān / jiàn',jyutping:'gaan1',meaning:'Khoảng; phòng; giữa',compounds:[{word:'时间',reading:'thời gian',meaning:'thời gian'},{word:'中间',reading:'trung gian',meaning:'ở giữa'}],radical:'门'},
+{char:'前',hanViet:'Tiền',pinyin:'qián',jyutping:'cin4',meaning:'Trước; phía trước; tiền',compounds:[{word:'以前',reading:'dĩ tiền',meaning:'trước đây'},{word:'前面',reading:'tiền diện',meaning:'phía trước'}],radical:'刀'},
+{char:'点',hanViet:'Điểm',pinyin:'diǎn',jyutping:'dim2',meaning:'Điểm; giờ (đồng hồ); chút',compounds:[{word:'一点',reading:'nhất điểm',meaning:'một chút'},{word:'重点',reading:'trọng điểm',meaning:'trọng điểm'}],radical:'火'},
+{char:'给',hanViet:'Cấp',pinyin:'gěi / jǐ',jyutping:'kap1',meaning:'Cho; đưa; cung cấp',compounds:[{word:'给你',reading:'cấp nễ',meaning:'cho bạn'},{word:'供给',reading:'cung cấp',meaning:'cung cấp'}],radical:'糸'},
+{char:'情',hanViet:'Tình',pinyin:'qíng',jyutping:'cing4',meaning:'Tình cảm; hoàn cảnh; chuyện',compounds:[{word:'感情',reading:'cảm tình',meaning:'tình cảm'},{word:'情况',reading:'tình huống',meaning:'tình huống'}],radical:'忄'},
+{char:'同',hanViet:'Đồng',pinyin:'tóng',jyutping:'tung4',meaning:'Giống; cùng; đồng',compounds:[{word:'同学',reading:'đồng học',meaning:'bạn học'},{word:'相同',reading:'tương đồng',meaning:'giống nhau'}],radical:'口'},
+{char:'太',hanViet:'Thái',pinyin:'tài',jyutping:'taai3',meaning:'Quá; rất; thái; lớn hơn',compounds:[{word:'太好了',reading:'thái hảo liễu',meaning:'tuyệt vời quá'},{word:'太阳',reading:'thái dương',meaning:'mặt trời'}],radical:'大'},
+{char:'名',hanViet:'Danh',pinyin:'míng',jyutping:'ming4',meaning:'Tên; danh tiếng; nổi tiếng',compounds:[{word:'名字',reading:'danh tự',meaning:'tên'},{word:'有名',reading:'hữu danh',meaning:'nổi tiếng'}],radical:'口'},
+{char:'外',hanViet:'Ngoại',pinyin:'wài',jyutping:'ngoi6',meaning:'Ngoài; bên ngoài; nước ngoài',compounds:[{word:'外国',reading:'ngoại quốc',meaning:'nước ngoài'},{word:'外面',reading:'ngoại diện',meaning:'bên ngoài'}],radical:'夕'},
+{char:'面',hanViet:'Diện',pinyin:'miàn',jyutping:'min6',meaning:'Mặt; phía; mì (đồ ăn)',compounds:[{word:'面前',reading:'diện tiền',meaning:'trước mặt'},{word:'方面',reading:'phương diện',meaning:'phương diện'}],radical:'面'},
+{char:'路',hanViet:'Lộ',pinyin:'lù',jyutping:'lou6',meaning:'Đường; con đường; lộ trình',compounds:[{word:'道路',reading:'đạo lộ',meaning:'đường sá'},{word:'路上',reading:'lộ thượng',meaning:'trên đường'}],radical:'足'},
+{char:'真',hanViet:'Chân',pinyin:'zhēn',jyutping:'zan1',meaning:'Thật; thực sự; rất',compounds:[{word:'真的',reading:'chân đích',meaning:'thật sự'},{word:'真正',reading:'chân chính',meaning:'thực sự'}],radical:'目'},
+{char:'才',hanViet:'Tài',pinyin:'cái',jyutping:'coi4',meaning:'Tài năng; mới; chỉ thì',compounds:[{word:'才能',reading:'tài năng',meaning:'tài năng'},{word:'刚才',reading:'cương tài',meaning:'vừa mới'}],radical:'手'},
+{char:'东',hanViet:'Đông',pinyin:'dōng',jyutping:'dung1',meaning:'Phương đông; phía đông',compounds:[{word:'东西',reading:'đông tây',meaning:'đồ vật'},{word:'东方',reading:'đông phương',meaning:'phương đông'}],radical:'木'},
+{char:'西',hanViet:'Tây',pinyin:'xī',jyutping:'sai1',meaning:'Phương tây; phía tây',compounds:[{word:'西方',reading:'tây phương',meaning:'phương tây'},{word:'东西',reading:'đông tây',meaning:'đồ vật'}],radical:'西'},
+{char:'南',hanViet:'Nam',pinyin:'nán',jyutping:'naam4',meaning:'Phương nam; phía nam',compounds:[{word:'南方',reading:'nam phương',meaning:'miền nam'},{word:'越南',reading:'việt nam',meaning:'Việt Nam'}],radical:'十'},
+{char:'北',hanViet:'Bắc',pinyin:'běi',jyutping:'bak1',meaning:'Phương bắc; phía bắc',compounds:[{word:'北方',reading:'bắc phương',meaning:'miền bắc'},{word:'北京',reading:'bắc kinh',meaning:'Bắc Kinh'}],radical:'匕'},
+{char:'话',hanViet:'Thoại',pinyin:'huà',jyutping:'waa6',meaning:'Lời; câu chuyện; ngôn ngữ',compounds:[{word:'说话',reading:'thuyết thoại',meaning:'nói chuyện'},{word:'对话',reading:'đối thoại',meaning:'đối thoại'}],radical:'讠'},
+{char:'走',hanViet:'Tẩu',pinyin:'zǒu',jyutping:'zau2',meaning:'Đi bộ; rời đi; chạy',compounds:[{word:'走路',reading:'tẩu lộ',meaning:'đi bộ'},{word:'走开',reading:'tẩu khai',meaning:'đi đi'}],radical:'走'},
+{char:'最',hanViet:'Tối',pinyin:'zuì',jyutping:'zeoi3',meaning:'Nhất; cực kỳ; tối',compounds:[{word:'最好',reading:'tối hảo',meaning:'tốt nhất'},{word:'最后',reading:'tối hậu',meaning:'cuối cùng'}],radical:'日'},
+{char:'意',hanViet:'Ý',pinyin:'yì',jyutping:'ji3',meaning:'Ý; ý nghĩa; muốn',compounds:[{word:'意思',reading:'ý tư',meaning:'ý nghĩa'},{word:'注意',reading:'chú ý',meaning:'chú ý'}],radical:'心'},
+{char:'思',hanViet:'Tư',pinyin:'sī',jyutping:'si1',meaning:'Suy nghĩ; tư tưởng; nhớ',compounds:[{word:'思想',reading:'tư tưởng',meaning:'tư tưởng'},{word:'意思',reading:'ý tư',meaning:'ý nghĩa'}],radical:'心'},
+{char:'更',hanViet:'Canh',pinyin:'gèng / gēng',jyutping:'gang3',meaning:'Càng; hơn nữa; canh giờ',compounds:[{word:'更多',reading:'canh đa',meaning:'nhiều hơn'},{word:'更好',reading:'canh hảo',meaning:'tốt hơn'}],radical:'曰'},
+{char:'行',hanViet:'Hành',pinyin:'xíng / háng',jyutping:'hang4',meaning:'Đi; hành động; được; nghề',compounds:[{word:'行走',reading:'hành tẩu',meaning:'đi lại'},{word:'银行',reading:'ngân hàng',meaning:'ngân hàng'}],radical:'行'},
+{char:'又',hanViet:'Hựu',pinyin:'yòu',jyutping:'jau6',meaning:'Lại; thêm; vừa ... vừa',compounds:[{word:'又一次',reading:'hựu nhất thứ',meaning:'một lần nữa'}],radical:'又'},
+{char:'见',hanViet:'Kiến',pinyin:'jiàn',jyutping:'gin3',meaning:'Gặp; thấy; kiến thức',compounds:[{word:'见面',reading:'kiến diện',meaning:'gặp mặt'},{word:'意见',reading:'ý kiến',meaning:'ý kiến'}],radical:'见'},
+{char:'着',hanViet:'Trứ / Trước',pinyin:'zhe / zháo',jyutping:'zoek3',meaning:'Đang (tiếp diễn); mặc; chạm',compounds:[{word:'看着',reading:'khán trứ',meaning:'nhìn vào'},{word:'着急',reading:'trứ cấp',meaning:'lo lắng; vội'}],radical:'目'},
+{char:'几',hanViet:'Kỷ / Cơ',pinyin:'jǐ / jī',jyutping:'gei2',meaning:'Mấy; vài; bàn nhỏ',compounds:[{word:'几个',reading:'kỷ cá',meaning:'mấy cái'},{word:'几乎',reading:'kỷ hồ',meaning:'hầu như'}],radical:'几'},
+{char:'写',hanViet:'Tả',pinyin:'xiě',jyutping:'se2',meaning:'Viết; ghi',compounds:[{word:'写作',reading:'tả tác',meaning:'viết lách'},{word:'写字',reading:'tả tự',meaning:'viết chữ'}],radical:'冖'},
+{char:'门',hanViet:'Môn',pinyin:'mén',jyutping:'mun4',meaning:'Cửa; môn học; cổng',compounds:[{word:'门口',reading:'môn khẩu',meaning:'cửa ra vào'},{word:'专门',reading:'chuyên môn',meaning:'chuyên môn'}],radical:'门'},
+{char:'开',hanViet:'Khai',pinyin:'kāi',jyutping:'hoi1',meaning:'Mở; bắt đầu; khai',compounds:[{word:'开始',reading:'khai thủy',meaning:'bắt đầu'},{word:'打开',reading:'đả khai',meaning:'mở ra'}],radical:'廾'},
+{char:'口',hanViet:'Khẩu',pinyin:'kǒu',jyutping:'hau2',meaning:'Miệng; cửa miệng; khẩu',compounds:[{word:'口语',reading:'khẩu ngữ',meaning:'khẩu ngữ'},{word:'出口',reading:'xuất khẩu',meaning:'xuất khẩu'}],radical:'口'},
+{char:'高',hanViet:'Cao',pinyin:'gāo',jyutping:'gou1',meaning:'Cao; giỏi; tầng cao',compounds:[{word:'高兴',reading:'cao hứng',meaning:'vui mừng'},{word:'提高',reading:'đề cao',meaning:'nâng cao'}],radical:'高'},
+{char:'少',hanViet:'Thiểu / Thiếu',pinyin:'shǎo / shào',jyutping:'siu2',meaning:'Ít; thiếu; trẻ',compounds:[{word:'多少',reading:'đa thiểu',meaning:'bao nhiêu'},{word:'少年',reading:'thiếu niên',meaning:'thiếu niên'}],radical:'小'},
+{char:'月',hanViet:'Nguyệt',pinyin:'yuè',jyutping:'jyut6',meaning:'Tháng; mặt trăng; nguyệt',compounds:[{word:'月亮',reading:'nguyệt lượng',meaning:'mặt trăng'},{word:'下月',reading:'hạ nguyệt',meaning:'tháng sau'}],radical:'月'},
+{char:'书',hanViet:'Thư',pinyin:'shū',jyutping:'syu1',meaning:'Sách; chữ viết; thư',compounds:[{word:'书本',reading:'thư bổn',meaning:'sách vở'},{word:'图书馆',reading:'đồ thư quán',meaning:'thư viện'}],radical:'乙'},
+{char:'头',hanViet:'Đầu',pinyin:'tóu',jyutping:'tau4',meaning:'Đầu; đầu tiên; lượng từ',compounds:[{word:'头发',reading:'đầu phát',meaning:'tóc'},{word:'头脑',reading:'đầu não',meaning:'đầu óc'}],radical:'大'},
+{char:'白',hanViet:'Bạch',pinyin:'bái',jyutping:'baak6',meaning:'Trắng; trắng tinh; rõ ràng',compounds:[{word:'白天',reading:'bạch thiên',meaning:'ban ngày'},{word:'明白',reading:'minh bạch',meaning:'hiểu rõ'}],radical:'白'},
+{char:'女',hanViet:'Nữ',pinyin:'nǚ',jyutping:'neoi5',meaning:'Nữ; phụ nữ; con gái',compounds:[{word:'女人',reading:'nữ nhân',meaning:'phụ nữ'},{word:'女儿',reading:'nữ nhi',meaning:'con gái'}],radical:'女'},
+{char:'男',hanViet:'Nam',pinyin:'nán',jyutping:'naam4',meaning:'Nam; đàn ông; con trai',compounds:[{word:'男人',reading:'nam nhân',meaning:'đàn ông'},{word:'男生',reading:'nam sinh',meaning:'học sinh nam'}],radical:'田'},
+{char:'父',hanViet:'Phụ',pinyin:'fù',jyutping:'fu6',meaning:'Cha; phụ; bậc trên',compounds:[{word:'父亲',reading:'phụ thân',meaning:'cha'},{word:'父母',reading:'phụ mẫu',meaning:'cha mẹ'}],radical:'父'},
+{char:'母',hanViet:'Mẫu',pinyin:'mǔ',jyutping:'mou5',meaning:'Mẹ; mẫu; nguồn gốc',compounds:[{word:'母亲',reading:'mẫu thân',meaning:'mẹ'},{word:'父母',reading:'phụ mẫu',meaning:'cha mẹ'}],radical:'母'},
+{char:'儿',hanViet:'Nhi',pinyin:'ér',jyutping:'ji4',meaning:'Con; trẻ em; hậu tố',compounds:[{word:'儿子',reading:'nhi tử',meaning:'con trai'},{word:'儿女',reading:'nhi nữ',meaning:'con cái'}],radical:'儿'},
+{char:'风',hanViet:'Phong',pinyin:'fēng',jyutping:'fung1',meaning:'Gió; phong cách; phong tục',compounds:[{word:'风格',reading:'phong cách',meaning:'phong cách'},{word:'台风',reading:'đài phong',meaning:'bão'}],radical:'风'},
+{char:'火',hanViet:'Hỏa',pinyin:'huǒ',jyutping:'fo2',meaning:'Lửa; hỏa; nóng bỏng',compounds:[{word:'火车',reading:'hỏa xa',meaning:'tàu hỏa'},{word:'火山',reading:'hỏa sơn',meaning:'núi lửa'}],radical:'火'},
+{char:'木',hanViet:'Mộc',pinyin:'mù',jyutping:'muk6',meaning:'Gỗ; cây; mộc',compounds:[{word:'木头',reading:'mộc đầu',meaning:'khúc gỗ'},{word:'木材',reading:'mộc tài',meaning:'gỗ / vật liệu gỗ'}],radical:'木'},
+{char:'金',hanViet:'Kim',pinyin:'jīn',jyutping:'gam1',meaning:'Vàng; kim loại; tiền',compounds:[{word:'金钱',reading:'kim tiền',meaning:'tiền bạc'},{word:'黄金',reading:'hoàng kim',meaning:'vàng'}],radical:'金'},
+{char:'土',hanViet:'Thổ',pinyin:'tǔ',jyutping:'tou2',meaning:'Đất; thổ; địa phương',compounds:[{word:'土地',reading:'thổ địa',meaning:'đất đai'},{word:'国土',reading:'quốc thổ',meaning:'lãnh thổ'}],radical:'土'},
+{char:'草',hanViet:'Thảo',pinyin:'cǎo',jyutping:'cou2',meaning:'Cỏ; thảo; nháp',compounds:[{word:'草地',reading:'thảo địa',meaning:'bãi cỏ'},{word:'草原',reading:'thảo nguyên',meaning:'thảo nguyên'}],radical:'艹'},
+{char:'树',hanViet:'Thụ',pinyin:'shù',jyutping:'syu6',meaning:'Cây; trồng; vun đắp',compounds:[{word:'大树',reading:'đại thụ',meaning:'cây cổ thụ'},{word:'树木',reading:'thụ mộc',meaning:'cây cối'}],radical:'木'},
+{char:'花',hanViet:'Hoa',pinyin:'huā',jyutping:'faa1',meaning:'Hoa; tiêu (tiền); hoa văn',compounds:[{word:'花园',reading:'hoa viên',meaning:'vườn hoa'},{word:'花钱',reading:'hoa tiền',meaning:'tiêu tiền'}],radical:'艹'},
+{char:'鱼',hanViet:'Ngư',pinyin:'yú',jyutping:'jyu4',meaning:'Cá; đánh cá',compounds:[{word:'鱼肉',reading:'ngư nhục',meaning:'thịt cá'},{word:'金鱼',reading:'kim ngư',meaning:'cá vàng'}],radical:'鱼'},
+{char:'鸟',hanViet:'Điểu',pinyin:'niǎo',jyutping:'niu5',meaning:'Chim; điểu',compounds:[{word:'小鸟',reading:'tiểu điểu',meaning:'chim nhỏ'},{word:'鸟类',reading:'điểu loại',meaning:'loài chim'}],radical:'鸟'},
+{char:'马',hanViet:'Mã',pinyin:'mǎ',jyutping:'maa5',meaning:'Ngựa; mã',compounds:[{word:'马上',reading:'mã thượng',meaning:'ngay lập tức'},{word:'马路',reading:'mã lộ',meaning:'đường phố'}],radical:'马'},
+{char:'牛',hanViet:'Ngưu',pinyin:'niú',jyutping:'ngau4',meaning:'Bò; trâu; ngưu',compounds:[{word:'牛奶',reading:'ngưu nãi',meaning:'sữa bò'},{word:'水牛',reading:'thủy ngưu',meaning:'trâu nước'}],radical:'牛'},
+{char:'羊',hanViet:'Dương',pinyin:'yáng',jyutping:'joeng4',meaning:'Dê; cừu; dương',compounds:[{word:'羊肉',reading:'dương nhục',meaning:'thịt cừu'},{word:'山羊',reading:'sơn dương',meaning:'dê núi'}],radical:'羊'},
+{char:'狗',hanViet:'Cẩu',pinyin:'gǒu',jyutping:'gau2',meaning:'Chó; cẩu',compounds:[{word:'小狗',reading:'tiểu cẩu',meaning:'chó con'},{word:'狗肉',reading:'cẩu nhục',meaning:'thịt chó'}],radical:'犭'},
+{char:'猫',hanViet:'Miêu',pinyin:'māo',jyutping:'maau1',meaning:'Mèo; miêu',compounds:[{word:'猫咪',reading:'miêu mê',meaning:'mèo con (thân mật)'},{word:'小猫',reading:'tiểu miêu',meaning:'mèo nhỏ'}],radical:'犭'},
+{char:'眼',hanViet:'Nhãn',pinyin:'yǎn',jyutping:'ngaan5',meaning:'Mắt; nhãn; lỗ',compounds:[{word:'眼睛',reading:'nhãn tình',meaning:'đôi mắt'},{word:'眼镜',reading:'nhãn kính',meaning:'kính mắt'}],radical:'目'},
+{char:'耳',hanViet:'Nhĩ',pinyin:'ěr',jyutping:'ji5',meaning:'Tai; nhĩ',compounds:[{word:'耳朵',reading:'nhĩ đóa',meaning:'tai'},{word:'耳机',reading:'nhĩ cơ',meaning:'tai nghe'}],radical:'耳'},
+{char:'鼻',hanViet:'Tị',pinyin:'bí',jyutping:'bei6',meaning:'Mũi; tị',compounds:[{word:'鼻子',reading:'tị tử',meaning:'cái mũi'},{word:'鼻血',reading:'tị huyết',meaning:'máu mũi'}],radical:'鼻'},
+{char:'身',hanViet:'Thân',pinyin:'shēn',jyutping:'san1',meaning:'Thân; cơ thể; bản thân',compounds:[{word:'身体',reading:'thân thể',meaning:'cơ thể'},{word:'身份',reading:'thân phận',meaning:'thân phận'}],radical:'身'},
+{char:'体',hanViet:'Thể',pinyin:'tǐ',jyutping:'tai2',meaning:'Thể; cơ thể; thể chất',compounds:[{word:'身体',reading:'thân thể',meaning:'cơ thể'},{word:'体育',reading:'thể dục',meaning:'thể dục'}],radical:'亻'},
+{char:'力',hanViet:'Lực',pinyin:'lì',jyutping:'lik6',meaning:'Sức lực; lực; cố gắng',compounds:[{word:'力量',reading:'lực lượng',meaning:'sức mạnh'},{word:'努力',reading:'nỗ lực',meaning:'nỗ lực'}],radical:'力'},
+{char:'气',hanViet:'Khí',pinyin:'qì',jyutping:'hei3',meaning:'Khí; hơi; tức giận',compounds:[{word:'天气',reading:'thiên khí',meaning:'thời tiết'},{word:'空气',reading:'không khí',meaning:'không khí'}],radical:'气'},
+{char:'色',hanViet:'Sắc',pinyin:'sè',jyutping:'sik1',meaning:'Màu; sắc; vẻ đẹp',compounds:[{word:'颜色',reading:'nhan sắc',meaning:'màu sắc'},{word:'特色',reading:'đặc sắc',meaning:'đặc sắc'}],radical:'色'},
+{char:'红',hanViet:'Hồng',pinyin:'hóng',jyutping:'hung4',meaning:'Đỏ; hồng; thành công',compounds:[{word:'红色',reading:'hồng sắc',meaning:'màu đỏ'},{word:'红包',reading:'hồng bao',meaning:'phong bì đỏ'}],radical:'糸'},
+{char:'绿',hanViet:'Lục',pinyin:'lǜ',jyutping:'luk6',meaning:'Xanh lá; lục',compounds:[{word:'绿色',reading:'lục sắc',meaning:'màu xanh lá'},{word:'绿茶',reading:'lục trà',meaning:'trà xanh'}],radical:'糸'},
+{char:'蓝',hanViet:'Lam',pinyin:'lán',jyutping:'laam4',meaning:'Xanh dương; lam',compounds:[{word:'蓝色',reading:'lam sắc',meaning:'màu xanh dương'},{word:'天蓝',reading:'thiên lam',meaning:'xanh trời'}],radical:'艹'},
+{char:'黄',hanViet:'Hoàng',pinyin:'huáng',jyutping:'wong4',meaning:'Vàng; hoàng; họ Hoàng',compounds:[{word:'黄色',reading:'hoàng sắc',meaning:'màu vàng'},{word:'黄金',reading:'hoàng kim',meaning:'vàng ròng'}],radical:'黄'},
+{char:'黑',hanViet:'Hắc',pinyin:'hēi',jyutping:'haak1',meaning:'Đen; hắc; tối',compounds:[{word:'黑色',reading:'hắc sắc',meaning:'màu đen'},{word:'黑夜',reading:'hắc dạ',meaning:'đêm tối'}],radical:'黑'},
+{char:'新',hanViet:'Tân',pinyin:'xīn',jyutping:'san1',meaning:'Mới; tân; tươi',compounds:[{word:'新年',reading:'tân niên',meaning:'năm mới'},{word:'创新',reading:'sáng tân',meaning:'sáng tạo'}],radical:'斤'},
+{char:'旧',hanViet:'Cựu',pinyin:'jiù',jyutping:'gau6',meaning:'Cũ; xưa; cựu',compounds:[{word:'旧书',reading:'cựu thư',meaning:'sách cũ'},{word:'新旧',reading:'tân cựu',meaning:'mới cũ'}],radical:'臼'},
+{char:'快',hanViet:'Khoái',pinyin:'kuài',jyutping:'faai3',meaning:'Nhanh; vui vẻ; sắp',compounds:[{word:'快乐',reading:'khoái lạc',meaning:'vui vẻ'},{word:'加快',reading:'gia khoái',meaning:'tăng tốc'}],radical:'忄'},
+{char:'慢',hanViet:'Mạn',pinyin:'màn',jyutping:'maan6',meaning:'Chậm; từ từ; mạn',compounds:[{word:'慢慢',reading:'mạn mạn',meaning:'từ từ'},{word:'慢走',reading:'mạn tẩu',meaning:'đi từ từ / tạm biệt'}],radical:'忄'},
+{char:'低',hanViet:'Đê',pinyin:'dī',jyutping:'dai1',meaning:'Thấp; đê; cúi đầu',compounds:[{word:'低级',reading:'đê cấp',meaning:'cấp thấp'},{word:'高低',reading:'cao đê',meaning:'cao thấp'}],radical:'亻'},
+{char:'短',hanViet:'Đoản',pinyin:'duǎn',jyutping:'dyun2',meaning:'Ngắn; đoản; thiếu',compounds:[{word:'短暂',reading:'đoản tạm',meaning:'ngắn ngủi'},{word:'长短',reading:'trường đoản',meaning:'dài ngắn'}],radical:'矢'},
+{char:'重',hanViet:'Trọng / Trùng',pinyin:'zhòng / chóng',jyutping:'zung6',meaning:'Nặng; quan trọng; lại',compounds:[{word:'重要',reading:'trọng yếu',meaning:'quan trọng'},{word:'体重',reading:'thể trọng',meaning:'cân nặng'}],radical:'里'},
+{char:'轻',hanViet:'Khinh',pinyin:'qīng',jyutping:'hing1',meaning:'Nhẹ; khinh; nhẹ nhàng',compounds:[{word:'年轻',reading:'niên khinh',meaning:'trẻ tuổi'},{word:'轻松',reading:'khinh tùng',meaning:'thoải mái'}],radical:'车'},
+{char:'美',hanViet:'Mỹ',pinyin:'měi',jyutping:'mei5',meaning:'Đẹp; mỹ; Mỹ (Mỹ)',compounds:[{word:'美丽',reading:'mỹ lệ',meaning:'xinh đẹp'},{word:'美国',reading:'mỹ quốc',meaning:'nước Mỹ'}],radical:'羊'},
+{char:'钱',hanViet:'Tiền',pinyin:'qián',jyutping:'cin2',meaning:'Tiền; đồng tiền',compounds:[{word:'钱包',reading:'tiền bao',meaning:'ví tiền'},{word:'有钱',reading:'hữu tiền',meaning:'giàu có'}],radical:'金'},
+{char:'饭',hanViet:'Phạn',pinyin:'fàn',jyutping:'faan6',meaning:'Cơm; bữa ăn',compounds:[{word:'吃饭',reading:'khiết phạn',meaning:'ăn cơm'},{word:'米饭',reading:'mễ phạn',meaning:'cơm trắng'}],radical:'饣'},
+{char:'茶',hanViet:'Trà',pinyin:'chá',jyutping:'caa4',meaning:'Trà; chè',compounds:[{word:'喝茶',reading:'hát trà',meaning:'uống trà'},{word:'茶叶',reading:'trà diệp',meaning:'lá trà'}],radical:'艹'},
+{char:'酒',hanViet:'Tửu',pinyin:'jiǔ',jyutping:'zau2',meaning:'Rượu; tửu',compounds:[{word:'喝酒',reading:'hát tửu',meaning:'uống rượu'},{word:'红酒',reading:'hồng tửu',meaning:'rượu vang đỏ'}],radical:'氵'},
+{char:'肉',hanViet:'Nhục',pinyin:'ròu',jyutping:'juk6',meaning:'Thịt; nhục; cơ thể',compounds:[{word:'牛肉',reading:'ngưu nhục',meaning:'thịt bò'},{word:'猪肉',reading:'trư nhục',meaning:'thịt lợn'}],radical:'肉'},
+{char:'米',hanViet:'Mễ',pinyin:'mǐ',jyutping:'mai5',meaning:'Gạo; mét; mễ',compounds:[{word:'米饭',reading:'mễ phạn',meaning:'cơm'},{word:'白米',reading:'bạch mễ',meaning:'gạo trắng'}],radical:'米'},
+{char:'菜',hanViet:'Thái',pinyin:'cài',jyutping:'coi3',meaning:'Rau; món ăn; thức ăn',compounds:[{word:'蔬菜',reading:'sơ thái',meaning:'rau củ'},{word:'菜单',reading:'thái đơn',meaning:'thực đơn'}],radical:'艹'},
+{char:'果',hanViet:'Quả',pinyin:'guǒ',jyutping:'gwo2',meaning:'Quả; kết quả; thật sự',compounds:[{word:'水果',reading:'thủy quả',meaning:'trái cây'},{word:'结果',reading:'kết quả',meaning:'kết quả'}],radical:'木'},
+{char:'城',hanViet:'Thành',pinyin:'chéng',jyutping:'sing4',meaning:'Thành phố; thành trì',compounds:[{word:'城市',reading:'thành thị',meaning:'thành phố'},{word:'长城',reading:'trường thành',meaning:'Vạn Lý Trường Thành'}],radical:'土'},
+{char:'市',hanViet:'Thị',pinyin:'shì',jyutping:'si5',meaning:'Thị; chợ; thành phố',compounds:[{word:'城市',reading:'thành thị',meaning:'thành phố'},{word:'市场',reading:'thị trường',meaning:'thị trường'}],radical:'巾'},
+{char:'村',hanViet:'Thôn',pinyin:'cūn',jyutping:'cyun1',meaning:'Làng; thôn; nông thôn',compounds:[{word:'农村',reading:'nông thôn',meaning:'nông thôn'},{word:'村子',reading:'thôn tử',meaning:'ngôi làng'}],radical:'木'},
+{char:'医',hanViet:'Y',pinyin:'yī',jyutping:'ji1',meaning:'Y tế; bác sĩ; chữa bệnh',compounds:[{word:'医生',reading:'y sinh',meaning:'bác sĩ'},{word:'医院',reading:'y viện',meaning:'bệnh viện'}],radical:'匚'},
+{char:'院',hanViet:'Viện',pinyin:'yuàn',jyutping:'jyun2',meaning:'Viện; sân; học viện',compounds:[{word:'医院',reading:'y viện',meaning:'bệnh viện'},{word:'院子',reading:'viện tử',meaning:'sân vườn'}],radical:'阝'},
+{char:'公',hanViet:'Công',pinyin:'gōng',jyutping:'gung1',meaning:'Công cộng; công bằng; ông',compounds:[{word:'公司',reading:'công ti',meaning:'công ty'},{word:'公园',reading:'công viên',meaning:'công viên'}],radical:'八'},
+{char:'司',hanViet:'Ti / Tư',pinyin:'sī',jyutping:'si1',meaning:'Quản lý; ti; công ty',compounds:[{word:'公司',reading:'công ti',meaning:'công ty'},{word:'司机',reading:'tư cơ',meaning:'tài xế'}],radical:'口'},
+{char:'朋',hanViet:'Bằng',pinyin:'péng',jyutping:'pang4',meaning:'Bạn; bằng hữu',compounds:[{word:'朋友',reading:'bằng hữu',meaning:'bạn bè'},{word:'好朋友',reading:'hảo bằng hữu',meaning:'bạn thân'}],radical:'月'},
+{char:'友',hanViet:'Hữu',pinyin:'yǒu',jyutping:'jau5',meaning:'Bạn; hữu; thân thiện',compounds:[{word:'朋友',reading:'bằng hữu',meaning:'bạn bè'},{word:'友好',reading:'hữu hảo',meaning:'thân thiện'}],radical:'又'},
+{char:'社',hanViet:'Xã',pinyin:'shè',jyutping:'se5',meaning:'Xã hội; tổ chức; thần xã',compounds:[{word:'社会',reading:'xã hội',meaning:'xã hội'},{word:'社区',reading:'xã khu',meaning:'cộng đồng'}],radical:'礻'},
+{char:'历',hanViet:'Lịch',pinyin:'lì',jyutping:'lik6',meaning:'Lịch sử; kinh qua; lịch',compounds:[{word:'历史',reading:'lịch sử',meaning:'lịch sử'},{word:'经历',reading:'kinh lịch',meaning:'kinh nghiệm'}],radical:'厂'},
+{char:'科',hanViet:'Khoa',pinyin:'kē',jyutping:'fo1',meaning:'Khoa; môn học; khoa học',compounds:[{word:'科学',reading:'khoa học',meaning:'khoa học'},{word:'科技',reading:'khoa kỹ',meaning:'khoa học kỹ thuật'}],radical:'禾'},
+{char:'济',hanViet:'Tế',pinyin:'jì',jyutping:'zai3',meaning:'Giúp đỡ; kinh tế; vượt qua',compounds:[{word:'经济',reading:'kinh tế',meaning:'kinh tế'},{word:'救济',reading:'cứu tế',meaning:'cứu trợ'}],radical:'氵'},
+{char:'政',hanViet:'Chính',pinyin:'zhèng',jyutping:'zing3',meaning:'Chính trị; chính phủ; cai quản',compounds:[{word:'政治',reading:'chính trị',meaning:'chính trị'},{word:'政府',reading:'chính phủ',meaning:'chính phủ'}],radical:'攴'},
+{char:'治',hanViet:'Trị',pinyin:'zhì',jyutping:'zi6',meaning:'Trị; quản lý; chữa bệnh',compounds:[{word:'政治',reading:'chính trị',meaning:'chính trị'},{word:'治疗',reading:'trị liệu',meaning:'điều trị'}],radical:'氵'},
+{char:'法',hanViet:'Pháp',pinyin:'fǎ',jyutping:'faat3',meaning:'Pháp; luật; phương pháp',compounds:[{word:'方法',reading:'phương pháp',meaning:'phương pháp'},{word:'法律',reading:'pháp luật',meaning:'pháp luật'}],radical:'氵'},
+{char:'律',hanViet:'Luật',pinyin:'lǜ',jyutping:'leot6',meaning:'Luật; quy tắc; kỷ luật',compounds:[{word:'法律',reading:'pháp luật',meaning:'pháp luật'},{word:'纪律',reading:'kỷ luật',meaning:'kỷ luật'}],radical:'彳'},
+{char:'教',hanViet:'Giáo',pinyin:'jiào / jiāo',jyutping:'gaau3',meaning:'Dạy; giáo; tôn giáo',compounds:[{word:'教育',reading:'giáo dục',meaning:'giáo dục'},{word:'教师',reading:'giáo sư',meaning:'giáo viên'}],radical:'攴'},
+{char:'育',hanViet:'Dục',pinyin:'yù',jyutping:'juk6',meaning:'Giáo dục; nuôi dưỡng; sinh',compounds:[{word:'教育',reading:'giáo dục',meaning:'giáo dục'},{word:'体育',reading:'thể dục',meaning:'thể dục'}],radical:'月'},
+{char:'艺',hanViet:'Nghệ',pinyin:'yì',jyutping:'ngai6',meaning:'Nghệ thuật; tài nghệ',compounds:[{word:'艺术',reading:'nghệ thuật',meaning:'nghệ thuật'},{word:'文艺',reading:'văn nghệ',meaning:'văn nghệ'}],radical:'艹'},
+{char:'术',hanViet:'Thuật',pinyin:'shù',jyutping:'seot6',meaning:'Thuật; kỹ thuật; phép',compounds:[{word:'技术',reading:'kỹ thuật',meaning:'kỹ thuật'},{word:'艺术',reading:'nghệ thuật',meaning:'nghệ thuật'}],radical:'木'},
+{char:'音',hanViet:'Âm',pinyin:'yīn',jyutping:'jam1',meaning:'Âm thanh; âm nhạc; tin tức',compounds:[{word:'音乐',reading:'âm nhạc',meaning:'âm nhạc'},{word:'发音',reading:'phát âm',meaning:'phát âm'}],radical:'音'},
+{char:'乐',hanViet:'Nhạc / Lạc',pinyin:'lè / yuè',jyutping:'lok6',meaning:'Vui; âm nhạc; hưởng thụ',compounds:[{word:'音乐',reading:'âm nhạc',meaning:'âm nhạc'},{word:'快乐',reading:'khoái lạc',meaning:'vui vẻ'}],radical:'木'},
+{char:'影',hanViet:'Ảnh',pinyin:'yǐng',jyutping:'jing2',meaning:'Bóng; ảnh; phim',compounds:[{word:'电影',reading:'điện ảnh',meaning:'phim điện ảnh'},{word:'影响',reading:'ảnh hưởng',meaning:'ảnh hưởng'}],radical:'彡'},
+{char:'电',hanViet:'Điện',pinyin:'diàn',jyutping:'din6',meaning:'Điện; điện lực; điện thoại',compounds:[{word:'电话',reading:'điện thoại',meaning:'điện thoại'},{word:'电脑',reading:'điện não',meaning:'máy tính'}],radical:'雨'},
+{char:'脑',hanViet:'Não',pinyin:'nǎo',jyutping:'nou5',meaning:'Não; đầu óc; bộ nhớ',compounds:[{word:'电脑',reading:'điện não',meaning:'máy tính'},{word:'头脑',reading:'đầu não',meaning:'đầu óc'}],radical:'月'},
+{char:'机',hanViet:'Cơ',pinyin:'jī',jyutping:'gei1',meaning:'Máy; cơ hội; máy bay',compounds:[{word:'手机',reading:'thủ cơ',meaning:'điện thoại di động'},{word:'飞机',reading:'phi cơ',meaning:'máy bay'}],radical:'木'},
+{char:'网',hanViet:'Mạng',pinyin:'wǎng',jyutping:'mong5',meaning:'Mạng lưới; internet; lưới',compounds:[{word:'网络',reading:'mạng lạc',meaning:'mạng lưới / internet'},{word:'上网',reading:'thượng mạng',meaning:'lên mạng'}],radical:'网'},
+{char:'络',hanViet:'Lạc',pinyin:'luò',jyutping:'lok3',meaning:'Kết nối; mạng lưới',compounds:[{word:'网络',reading:'mạng lạc',meaning:'mạng lưới'},{word:'络绎',reading:'lạc dịch',meaning:'nối tiếp nhau'}],radical:'糸'},
+{char:'题',hanViet:'Đề',pinyin:'tí',jyutping:'tai4',meaning:'Đề; vấn đề; tiêu đề',compounds:[{word:'问题',reading:'vấn đề',meaning:'vấn đề'},{word:'题目',reading:'đề mục',meaning:'đề bài'}],radical:'页'},
+{char:'完',hanViet:'Hoàn',pinyin:'wán',jyutping:'jyun4',meaning:'Xong; hoàn thành; hết',compounds:[{word:'完成',reading:'hoàn thành',meaning:'hoàn thành'},{word:'完全',reading:'hoàn toàn',meaning:'hoàn toàn'}],radical:'宀'},
+{char:'始',hanViet:'Thủy',pinyin:'shǐ',jyutping:'ci2',meaning:'Bắt đầu; khởi đầu; thủy',compounds:[{word:'开始',reading:'khai thủy',meaning:'bắt đầu'},{word:'始终',reading:'thủy chung',meaning:'từ đầu đến cuối'}],radical:'女'},
+{char:'续',hanViet:'Tục',pinyin:'xù',jyutping:'zuk6',meaning:'Tiếp tục; nối tiếp; thêm',compounds:[{word:'继续',reading:'kế tục',meaning:'tiếp tục'},{word:'连续',reading:'liên tục',meaning:'liên tục'}],radical:'糸'},
+{char:'改',hanViet:'Cải',pinyin:'gǎi',jyutping:'goi2',meaning:'Sửa; thay đổi; cải cách',compounds:[{word:'改变',reading:'cải biến',meaning:'thay đổi'},{word:'改革',reading:'cải cách',meaning:'cải cách'}],radical:'攴'},
+{char:'解',hanViet:'Giải',pinyin:'jiě',jyutping:'gaai2',meaning:'Giải; hiểu; tháo gỡ',compounds:[{word:'了解',reading:'liễu giải',meaning:'hiểu rõ'},{word:'解决',reading:'giải quyết',meaning:'giải quyết'}],radical:'角'},
+{char:'提',hanViet:'Đề',pinyin:'tí',jyutping:'tai4',meaning:'Đề; nâng lên; nhắc đến',compounds:[{word:'提高',reading:'đề cao',meaning:'nâng cao'},{word:'提出',reading:'đề xuất',meaning:'đề xuất'}],radical:'手'},
+{char:'增',hanViet:'Tăng',pinyin:'zēng',jyutping:'zang1',meaning:'Tăng; thêm; gia tăng',compounds:[{word:'增加',reading:'tăng gia',meaning:'tăng thêm'},{word:'增长',reading:'tăng trưởng',meaning:'tăng trưởng'}],radical:'土'},
+{char:'减',hanViet:'Giảm',pinyin:'jiǎn',jyutping:'gaam2',meaning:'Giảm; trừ; bớt',compounds:[{word:'减少',reading:'giảm thiểu',meaning:'giảm bớt'},{word:'减轻',reading:'giảm khinh',meaning:'giảm nhẹ'}],radical:'氵'},
+{char:'响',hanViet:'Hưởng',pinyin:'xiǎng',jyutping:'hoeng2',meaning:'Vang; ảnh hưởng; âm thanh',compounds:[{word:'影响',reading:'ảnh hưởng',meaning:'ảnh hưởng'},{word:'响应',reading:'hưởng ứng',meaning:'hưởng ứng'}],radical:'口'},
+{char:'支',hanViet:'Chi',pinyin:'zhī',jyutping:'zi1',meaning:'Nhánh; chi; chống đỡ',compounds:[{word:'支持',reading:'chi trì',meaning:'ủng hộ'},{word:'支出',reading:'chi xuất',meaning:'chi tiêu'}],radical:'支'},
+{char:'持',hanViet:'Trì',pinyin:'chí',jyutping:'ci4',meaning:'Giữ; trì; duy trì',compounds:[{word:'支持',reading:'chi trì',meaning:'ủng hộ'},{word:'坚持',reading:'kiên trì',meaning:'kiên trì'}],radical:'手'},
+{char:'反',hanViet:'Phản',pinyin:'fǎn',jyutping:'faan2',meaning:'Ngược; phản; trái lại',compounds:[{word:'反对',reading:'phản đối',meaning:'phản đối'},{word:'反应',reading:'phản ứng',meaning:'phản ứng'}],radical:'又'},
+{char:'选',hanViet:'Tuyển',pinyin:'xuǎn',jyutping:'syun2',meaning:'Chọn; tuyển; bầu cử',compounds:[{word:'选择',reading:'tuyển trạch',meaning:'lựa chọn'},{word:'选举',reading:'tuyển cử',meaning:'bầu cử'}],radical:'辶'},
+{char:'择',hanViet:'Trạch',pinyin:'zé',jyutping:'zaak6',meaning:'Chọn lựa; trạch; sàng lọc',compounds:[{word:'选择',reading:'tuyển trạch',meaning:'lựa chọn'},{word:'抉择',reading:'quyết trạch',meaning:'quyết định chọn'}],radical:'手'},
+{char:'使',hanViet:'Sử',pinyin:'shǐ',jyutping:'si2',meaning:'Sử dụng; sai khiến; làm',compounds:[{word:'使用',reading:'sử dụng',meaning:'sử dụng'},{word:'使得',reading:'sử đắc',meaning:'khiến cho'}],radical:'亻'},
+{char:'需',hanViet:'Nhu',pinyin:'xū',jyutping:'seoi1',meaning:'Cần; nhu cầu',compounds:[{word:'需要',reading:'nhu yếu',meaning:'cần thiết'},{word:'需求',reading:'nhu cầu',meaning:'nhu cầu'}],radical:'雨'},
+{char:'感',hanViet:'Cảm',pinyin:'gǎn',jyutping:'gam2',meaning:'Cảm; cảm nhận; cảm xúc',compounds:[{word:'感情',reading:'cảm tình',meaning:'tình cảm'},{word:'感谢',reading:'cảm tạ',meaning:'cảm ơn'}],radical:'心'},
+{char:'结',hanViet:'Kết',pinyin:'jié',jyutping:'git3',meaning:'Kết; buộc; kết thúc',compounds:[{word:'结果',reading:'kết quả',meaning:'kết quả'},{word:'结束',reading:'kết thúc',meaning:'kết thúc'}],radical:'糸'},
+{char:'原',hanViet:'Nguyên',pinyin:'yuán',jyutping:'jyun4',meaning:'Nguyên; ban đầu; đồng bằng',compounds:[{word:'原来',reading:'nguyên lai',meaning:'hóa ra; vốn'},{word:'原因',reading:'nguyên nhân',meaning:'nguyên nhân'}],radical:'厂'},
+{char:'希',hanViet:'Hy',pinyin:'xī',jyutping:'hei1',meaning:'Hy vọng; hiếm; hy',compounds:[{word:'希望',reading:'hy vọng',meaning:'hy vọng'},{word:'希腊',reading:'hy lạp',meaning:'Hy Lạp'}],radical:'巾'},
+{char:'望',hanViet:'Vọng',pinyin:'wàng',jyutping:'mong6',meaning:'Trông; vọng; hy vọng',compounds:[{word:'希望',reading:'hy vọng',meaning:'hy vọng'},{word:'失望',reading:'thất vọng',meaning:'thất vọng'}],radical:'月'},
+{char:'觉',hanViet:'Giác',pinyin:'jué / jiào',jyutping:'gok3',meaning:'Cảm thấy; giác; thức dậy',compounds:[{word:'觉得',reading:'giác đắc',meaning:'cảm thấy'},{word:'睡觉',reading:'thụy giác',meaning:'ngủ'}],radical:'见'},
+{char:'认',hanViet:'Nhận',pinyin:'rèn',jyutping:'jing6',meaning:'Nhận; nhận ra; thừa nhận',compounds:[{word:'认为',reading:'nhận vi',meaning:'cho rằng'},{word:'认识',reading:'nhận thức',meaning:'nhận biết'}],radical:'讠'},
+{char:'表',hanViet:'Biểu',pinyin:'biǎo',jyutping:'biu2',meaning:'Bề mặt; biểu; đồng hồ',compounds:[{word:'表示',reading:'biểu thị',meaning:'biểu thị'},{word:'代表',reading:'đại biểu',meaning:'đại biểu'}],radical:'衣'},
+{char:'注',hanViet:'Chú',pinyin:'zhù',jyutping:'zyu3',meaning:'Chú ý; ghi chú; đổ vào',compounds:[{word:'注意',reading:'chú ý',meaning:'chú ý'},{word:'注册',reading:'chú sách',meaning:'đăng ký'}],radical:'氵'},
+{char:'准',hanViet:'Chuẩn',pinyin:'zhǔn',jyutping:'zeon2',meaning:'Chuẩn; cho phép; chính xác',compounds:[{word:'准备',reading:'chuẩn bị',meaning:'chuẩn bị'},{word:'标准',reading:'tiêu chuẩn',meaning:'tiêu chuẩn'}],radical:'冫'},
+{char:'决',hanViet:'Quyết',pinyin:'jué',jyutping:'kyut3',meaning:'Quyết định; quyết tâm',compounds:[{word:'决定',reading:'quyết định',meaning:'quyết định'},{word:'解决',reading:'giải quyết',meaning:'giải quyết'}],radical:'氵'},
+{char:'参',hanViet:'Tham',pinyin:'cān',jyutping:'caam1',meaning:'Tham gia; tham khảo; sâm',compounds:[{word:'参加',reading:'tham gia',meaning:'tham gia'},{word:'参考',reading:'tham khảo',meaning:'tham khảo'}],radical:'厶'},
+{char:'二',hanViet:'Nhị',pinyin:'èr',jyutping:'ji6',meaning:'Hai; số 2; thứ hai',compounds:[{word:'第二',reading:'đệ nhị',meaning:'thứ hai'},{word:'二月',reading:'nhị nguyệt',meaning:'tháng hai'}],radical:'二'},
+{char:'四',hanViet:'Tứ',pinyin:'sì',jyutping:'sei3',meaning:'Bốn; số 4',compounds:[{word:'四月',reading:'tứ nguyệt',meaning:'tháng tư'},{word:'四方',reading:'tứ phương',meaning:'bốn phương'}],radical:'囗'},
+{char:'五',hanViet:'Ngũ',pinyin:'wǔ',jyutping:'ng5',meaning:'Năm; số 5',compounds:[{word:'五月',reading:'ngũ nguyệt',meaning:'tháng năm'},{word:'五官',reading:'ngũ quan',meaning:'ngũ quan'}],radical:'二'},
+{char:'六',hanViet:'Lục',pinyin:'liù',jyutping:'luk6',meaning:'Sáu; số 6',compounds:[{word:'六月',reading:'lục nguyệt',meaning:'tháng sáu'},{word:'六合',reading:'lục hợp',meaning:'lục hợp'}],radical:'八'},
+{char:'七',hanViet:'Thất',pinyin:'qī',jyutping:'cat1',meaning:'Bảy; số 7',compounds:[{word:'七月',reading:'thất nguyệt',meaning:'tháng bảy'},{word:'七夕',reading:'thất tịch',meaning:'lễ Thất Tịch'}],radical:'一'},
+{char:'八',hanViet:'Bát',pinyin:'bā',jyutping:'baat3',meaning:'Tám; số 8 (may mắn)',compounds:[{word:'八月',reading:'bát nguyệt',meaning:'tháng tám'},{word:'八方',reading:'bát phương',meaning:'tám phương'}],radical:'八'},
+{char:'九',hanViet:'Cửu',pinyin:'jiǔ',jyutping:'gau2',meaning:'Chín; số 9',compounds:[{word:'九月',reading:'cửu nguyệt',meaning:'tháng chín'},{word:'九九',reading:'cửu cửu',meaning:'bảng cửu chương'}],radical:'乙'},
+{char:'十',hanViet:'Thập',pinyin:'shí',jyutping:'sap6',meaning:'Mười; số 10',compounds:[{word:'十月',reading:'thập nguyệt',meaning:'tháng mười'},{word:'十分',reading:'thập phân',meaning:'rất; hoàn toàn'}],radical:'十'},
+{char:'百',hanViet:'Bách',pinyin:'bǎi',jyutping:'baak3',meaning:'Trăm; 100; trăm thứ',compounds:[{word:'百分之',reading:'bách phân chi',meaning:'phần trăm'},{word:'百年',reading:'bách niên',meaning:'trăm năm'}],radical:'白'},
+{char:'千',hanViet:'Thiên',pinyin:'qiān',jyutping:'cin1',meaning:'Nghìn; 1000',compounds:[{word:'千年',reading:'thiên niên',meaning:'nghìn năm'},{word:'千万',reading:'thiên vạn',meaning:'nhất định; hàng triệu'}],radical:'十'},
+{char:'万',hanViet:'Vạn',pinyin:'wàn',jyutping:'maan6',meaning:'Mười nghìn; vô vàn',compounds:[{word:'万岁',reading:'vạn tuế',meaning:'vạn tuế'},{word:'千万',reading:'thiên vạn',meaning:'nhất định phải'}],radical:'一'},
+{char:'分',hanViet:'Phân',pinyin:'fēn / fèn',jyutping:'fan1',meaning:'Phút; phân; chia; phần',compounds:[{word:'分钟',reading:'phân chung',meaning:'phút'},{word:'十分',reading:'thập phân',meaning:'rất / 10 phần'}],radical:'刀'},
+{char:'半',hanViet:'Bán',pinyin:'bàn',jyutping:'bun3',meaning:'Nửa; bán phần',compounds:[{word:'一半',reading:'nhất bán',meaning:'một nửa'},{word:'半夜',reading:'bán dạ',meaning:'nửa đêm'}],radical:'十'},
+{char:'些',hanViet:'Ta',pinyin:'xiē',jyutping:'se1',meaning:'Một số; vài; chút',compounds:[{word:'一些',reading:'nhất ta',meaning:'một số'},{word:'有些',reading:'hữu ta',meaning:'có một số'}],radical:'二'},
+{char:'另',hanViet:'Lệnh',pinyin:'lìng',jyutping:'ling6',meaning:'Khác; khác nữa; riêng',compounds:[{word:'另外',reading:'lệnh ngoại',meaning:'ngoài ra'},{word:'另一个',reading:'lệnh nhất cá',meaning:'một cái khác'}],radical:'口'},
+{char:'各',hanViet:'Các',pinyin:'gè',jyutping:'gok3',meaning:'Mỗi; các; từng',compounds:[{word:'各种',reading:'các chủng',meaning:'mỗi loại'},{word:'各地',reading:'các địa',meaning:'các nơi'}],radical:'口'},
+{char:'每',hanViet:'Mỗi',pinyin:'měi',jyutping:'mui5',meaning:'Mỗi; từng; mỗi lần',compounds:[{word:'每天',reading:'mỗi thiên',meaning:'mỗi ngày'},{word:'每次',reading:'mỗi thứ',meaning:'mỗi lần'}],radical:'母'},
+{char:'等',hanViet:'Đẳng',pinyin:'děng',jyutping:'dang2',meaning:'Chờ; bằng; đẳng cấp',compounds:[{word:'等待',reading:'đẳng đãi',meaning:'chờ đợi'},{word:'平等',reading:'bình đẳng',meaning:'bình đẳng'}],radical:'竹'},
+{char:'进',hanViet:'Tiến',pinyin:'jìn',jyutping:'zeon3',meaning:'Tiến; vào; tiến bộ',compounds:[{word:'进来',reading:'tiến lai',meaning:'vào đây'},{word:'进步',reading:'tiến bộ',meaning:'tiến bộ'}],radical:'辶'},
+{char:'立',hanViet:'Lập',pinyin:'lì',jyutping:'laap6',meaning:'Đứng; lập; thành lập',compounds:[{word:'建立',reading:'kiến lập',meaning:'thiết lập'},{word:'独立',reading:'độc lập',meaning:'độc lập'}],radical:'立'},
+{char:'语',hanViet:'Ngữ',pinyin:'yǔ',jyutping:'jyu5',meaning:'Ngôn ngữ; lời; ngữ',compounds:[{word:'语言',reading:'ngữ ngôn',meaning:'ngôn ngữ'},{word:'汉语',reading:'hán ngữ',meaning:'tiếng Hán'}],radical:'讠'},
+{char:'亲',hanViet:'Thân',pinyin:'qīn',jyutping:'can1',meaning:'Thân; ruột thịt; hôn',compounds:[{word:'亲人',reading:'thân nhân',meaning:'người thân'},{word:'亲爱',reading:'thân ái',meaning:'thân yêu'}],radical:'立'},
+{char:'别',hanViet:'Biệt',pinyin:'bié',jyutping:'bit6',meaning:'Đừng; khác; chia tay',compounds:[{word:'别人',reading:'biệt nhân',meaning:'người khác'},{word:'特别',reading:'đặc biệt',meaning:'đặc biệt'}],radical:'刀'},
+{char:'再',hanViet:'Tái',pinyin:'zài',jyutping:'zoi3',meaning:'Lại; nữa; tái',compounds:[{word:'再见',reading:'tái kiến',meaning:'tạm biệt'},{word:'再次',reading:'tái thứ',meaning:'một lần nữa'}],radical:'冂'},
+{char:'经',hanViet:'Kinh',pinyin:'jīng',jyutping:'ging1',meaning:'Kinh; đã qua; kinh điển',compounds:[{word:'已经',reading:'dĩ kinh',meaning:'đã'},{word:'经济',reading:'kinh tế',meaning:'kinh tế'}],radical:'糸'},
+{char:'正',hanViet:'Chính',pinyin:'zhèng',jyutping:'zing3',meaning:'Đúng; chính; đang',compounds:[{word:'正在',reading:'chính tại',meaning:'đang'},{word:'正确',reading:'chính xác',meaning:'chính xác'}],radical:'止'},
+{char:'将',hanViet:'Tương / Tướng',pinyin:'jiāng / jiàng',jyutping:'zoeng1',meaning:'Sẽ; tướng; mang',compounds:[{word:'将来',reading:'tương lai',meaning:'tương lai'},{word:'将军',reading:'tướng quân',meaning:'tướng quân'}],radical:'寸'},
+{char:'定',hanViet:'Định',pinyin:'dìng',jyutping:'ding6',meaning:'Chắc; định; quyết định',compounds:[{word:'一定',reading:'nhất định',meaning:'nhất định'},{word:'决定',reading:'quyết định',meaning:'quyết định'}],radical:'宀'},
+{char:'应',hanViet:'Ứng',pinyin:'yīng / yìng',jyutping:'jing1',meaning:'Nên; đáp ứng; ứng',compounds:[{word:'应该',reading:'ứng cai',meaning:'nên'},{word:'反应',reading:'phản ứng',meaning:'phản ứng'}],radical:'广'},
+{char:'该',hanViet:'Cai',pinyin:'gāi',jyutping:'goi1',meaning:'Nên; đó; cái',compounds:[{word:'应该',reading:'ứng cai',meaning:'nên'},{word:'该死',reading:'cai tử',meaning:'đáng chết (cảm thán)'}],radical:'讠'},
+{char:'须',hanViet:'Tu',pinyin:'xū',jyutping:'seoi1',meaning:'Phải; râu; cần',compounds:[{word:'必须',reading:'tất tu',meaning:'nhất thiết phải'},{word:'须要',reading:'tu yếu',meaning:'cần phải'}],radical:'页'},
+{char:'既',hanViet:'Ký',pinyin:'jì',jyutping:'gei3',meaning:'Đã; đã rồi; vì',compounds:[{word:'既然',reading:'ký nhiên',meaning:'đã vậy thì'},{word:'既是',reading:'ký thị',meaning:'vừa là'}],radical:'旡'},
+{char:'若',hanViet:'Nhược',pinyin:'ruò',jyutping:'joek6',meaning:'Nếu; như; nhược',compounds:[{word:'若是',reading:'nhược thị',meaning:'nếu là'},{word:'假若',reading:'giả nhược',meaning:'giả sử'}],radical:'艹'},
+{char:'共',hanViet:'Cộng',pinyin:'gòng',jyutping:'gung6',meaning:'Chung; cùng; cộng',compounds:[{word:'共同',reading:'cộng đồng',meaning:'chung; cùng nhau'},{word:'总共',reading:'tổng cộng',meaning:'tổng cộng'}],radical:'八'},
+{char:'全',hanViet:'Toàn',pinyin:'quán',jyutping:'cyun4',meaning:'Toàn; hoàn toàn; tất cả',compounds:[{word:'全部',reading:'toàn bộ',meaning:'toàn bộ'},{word:'安全',reading:'an toàn',meaning:'an toàn'}],radical:'人'},
+{char:'部',hanViet:'Bộ',pinyin:'bù',jyutping:'bou6',meaning:'Bộ; phần; toàn bộ',compounds:[{word:'全部',reading:'toàn bộ',meaning:'toàn bộ'},{word:'部分',reading:'bộ phận',meaning:'bộ phận'}],radical:'阝'},
+{char:'级',hanViet:'Cấp',pinyin:'jí',jyutping:'kap1',meaning:'Cấp; bậc; cấp độ',compounds:[{word:'年级',reading:'niên cấp',meaning:'lớp học'},{word:'高级',reading:'cao cấp',meaning:'cao cấp'}],radical:'糸'},
+{char:'度',hanViet:'Độ',pinyin:'dù',jyutping:'dou6',meaning:'Độ; mức độ; qua',compounds:[{word:'程度',reading:'trình độ',meaning:'trình độ'},{word:'制度',reading:'chế độ',meaning:'chế độ'}],radical:'广'},
+{char:'量',hanViet:'Lượng',pinyin:'liàng / liáng',jyutping:'loeng6',meaning:'Lượng; số lượng; đo',compounds:[{word:'数量',reading:'số lượng',meaning:'số lượng'},{word:'质量',reading:'chất lượng',meaning:'chất lượng'}],radical:'里'},
+{char:'数',hanViet:'Số',pinyin:'shù / shǔ',jyutping:'sou3',meaning:'Số; đếm; số lượng',compounds:[{word:'数学',reading:'số học',meaning:'toán học'},{word:'数量',reading:'số lượng',meaning:'số lượng'}],radical:'攴'},
+{char:'字',hanViet:'Tự',pinyin:'zì',jyutping:'zi6',meaning:'Chữ; từ; ký tự',compounds:[{word:'汉字',reading:'hán tự',meaning:'chữ Hán'},{word:'名字',reading:'danh tự',meaning:'tên'}],radical:'子'},
+{char:'词',hanViet:'Từ',pinyin:'cí',jyutping:'ci4',meaning:'Từ; lời; bài từ',compounds:[{word:'词语',reading:'từ ngữ',meaning:'từ ngữ'},{word:'词典',reading:'từ điển',meaning:'từ điển'}],radical:'讠'},
+{char:'章',hanViet:'Chương',pinyin:'zhāng',jyutping:'zoeng1',meaning:'Chương; bài; con dấu',compounds:[{word:'文章',reading:'văn chương',meaning:'bài văn'},{word:'章节',reading:'chương tiết',meaning:'chương mục'}],radical:'立'},
+{char:'段',hanViet:'Đoạn',pinyin:'duàn',jyutping:'dyun6',meaning:'Đoạn; khúc; bậc',compounds:[{word:'段落',reading:'đoạn lạc',meaning:'đoạn văn'},{word:'一段',reading:'nhất đoạn',meaning:'một đoạn'}],radical:'殳'},
+{char:'句',hanViet:'Cú',pinyin:'jù',jyutping:'geoi3',meaning:'Câu; câu văn',compounds:[{word:'句子',reading:'cú tử',meaning:'câu'},{word:'一句话',reading:'nhất cú thoại',meaning:'một câu nói'}],radical:'口'},
+{char:'答',hanViet:'Đáp',pinyin:'dá',jyutping:'daap3',meaning:'Trả lời; đáp; đáp ứng',compounds:[{word:'回答',reading:'hồi đáp',meaning:'trả lời'},{word:'答案',reading:'đáp án',meaning:'đáp án'}],radical:'竹'},
+{char:'理',hanViet:'Lý',pinyin:'lǐ',jyutping:'lei5',meaning:'Lý; lẽ; quản lý; lý do',compounds:[{word:'道理',reading:'đạo lý',meaning:'đạo lý'},{word:'管理',reading:'quản lý',meaning:'quản lý'}],radical:'王'},
+{char:'系',hanViet:'Hệ',pinyin:'xì / jì',jyutping:'hai6',meaning:'Hệ; liên quan; buộc',compounds:[{word:'关系',reading:'quan hệ',meaning:'quan hệ'},{word:'体系',reading:'thể hệ',meaning:'hệ thống'}],radical:'糸'},
+{char:'连',hanViet:'Liên',pinyin:'lián',jyutping:'lin4',meaning:'Liên; kết nối; ngay cả',compounds:[{word:'连接',reading:'liên tiếp',meaning:'kết nối'},{word:'联系',reading:'liên hệ',meaning:'liên lạc'}],radical:'辶'},
+{char:'接',hanViet:'Tiếp',pinyin:'jiē',jyutping:'zip3',meaning:'Tiếp; đón; nhận; nối',compounds:[{word:'接受',reading:'tiếp thụ',meaning:'tiếp nhận'},{word:'接触',reading:'tiếp xúc',meaning:'tiếp xúc'}],radical:'手'},
+{char:'送',hanViet:'Tống',pinyin:'sòng',jyutping:'sung3',meaning:'Tặng; đưa; tiễn',compounds:[{word:'送给',reading:'tống cấp',meaning:'tặng cho'},{word:'送行',reading:'tống hành',meaning:'tiễn đưa'}],radical:'辶'},
+{char:'带',hanViet:'Đái',pinyin:'dài',jyutping:'daai3',meaning:'Mang theo; đai; dẫn',compounds:[{word:'带来',reading:'đái lai',meaning:'mang đến'},{word:'带走',reading:'đái tẩu',meaning:'mang đi'}],radical:'巾'},
+{char:'放',hanViet:'Phóng',pinyin:'fàng',jyutping:'fong3',meaning:'Đặt; thả; phóng',compounds:[{word:'放开',reading:'phóng khai',meaning:'buông ra'},{word:'放心',reading:'phóng tâm',meaning:'yên tâm'}],radical:'攴'},
+{char:'拿',hanViet:'Nã',pinyin:'ná',jyutping:'naa4',meaning:'Cầm; lấy; bắt',compounds:[{word:'拿来',reading:'nã lai',meaning:'lấy đến'},{word:'拿走',reading:'nã tẩu',meaning:'lấy đi'}],radical:'手'}
+];
+
+// ═══════════════════════════════════════
+// VOCAB LYRICS — 站在樹林內就如沒氧氣
+// ═══════════════════════════════════════
+const VOCAB_LYRICS = [
+{char:'站',hanViet:'Trạm',pinyin:'zhàn',jyutping:'zaam6',meaning:'Đứng; đứng vững tại chỗ',compounds:[{word:'站立',reading:'trạm lập',meaning:'đứng thẳng'},{word:'站臺',reading:'trạm đài',meaning:'sân ga, sân khấu'}],radical:'立'},
+{char:'在',hanViet:'Tại',pinyin:'zài',jyutping:'zoi6',meaning:'Ở; đang; tại',compounds:[{word:'存在',reading:'tồn tại',meaning:'tồn tại'},{word:'現在',reading:'hiện tại',meaning:'hiện tại'}],radical:'土'},
+{char:'樹',hanViet:'Thụ',pinyin:'shù',jyutping:'syu6',meaning:'Cây; cây to',compounds:[{word:'樹木',reading:'thụ mộc',meaning:'cây cối'},{word:'樹林',reading:'thụ lâm',meaning:'khu rừng'}],radical:'木'},
+{char:'林',hanViet:'Lâm',pinyin:'lín',jyutping:'lam4',meaning:'Rừng; tập hợp nhiều cây',compounds:[{word:'森林',reading:'sâm lâm',meaning:'rừng rậm'},{word:'樹林',reading:'thụ lâm',meaning:'khu rừng'}],radical:'木'},
+{char:'內',hanViet:'Nội',pinyin:'nèi',jyutping:'noi6',meaning:'Bên trong; trong nội bộ',compounds:[{word:'內心',reading:'nội tâm',meaning:'nội tâm'},{word:'室內',reading:'thất nội',meaning:'trong nhà'}],radical:'入'},
+{char:'就',hanViet:'Tựu',pinyin:'jiù',jyutping:'zau6',meaning:'Liền; ngay; thì; chính là',compounds:[{word:'就是',reading:'tựu thị',meaning:'chính là'},{word:'成就',reading:'thành tựu',meaning:'thành tựu'}],radical:'尢'},
+{char:'如',hanViet:'Như',pinyin:'rú',jyutping:'jyu4',meaning:'Như; giống như; nếu như',compounds:[{word:'如同',reading:'như đồng',meaning:'giống như'},{word:'如果',reading:'như quả',meaning:'nếu như'}],radical:'女'},
+{char:'沒',hanViet:'Một',pinyin:'méi',jyutping:'mut6',meaning:'Không có; chìm; mất đi',compounds:[{word:'沒有',reading:'một hữu',meaning:'không có'},{word:'沒落',reading:'một lạc',meaning:'suy tàn'}],radical:'氵'},
+{char:'氧',hanViet:'Dưỡng',pinyin:'yǎng',jyutping:'joeng5',meaning:'Khí oxy; dưỡng khí',compounds:[{word:'氧氣',reading:'dưỡng khí',meaning:'khí oxy'},{word:'氧化',reading:'dưỡng hóa',meaning:'oxy hóa'}],radical:'气'},
+{char:'氣',hanViet:'Khí',pinyin:'qì',jyutping:'hei3',meaning:'Khí; hơi; tinh thần; tức giận',compounds:[{word:'空氣',reading:'không khí',meaning:'không khí'},{word:'氣息',reading:'khí tức',meaning:'hơi thở, không khí'}],radical:'气'},
+{char:'夕',hanViet:'Tịch',pinyin:'xī',jyutping:'zik6',meaning:'Buổi chiều; hoàng hôn',compounds:[{word:'夕陽',reading:'tịch dương',meaning:'hoàng hôn'},{word:'除夕',reading:'trừ tịch',meaning:'đêm giao thừa'}],radical:'夕'},
+{char:'陽',hanViet:'Dương',pinyin:'yáng',jyutping:'joeng4',meaning:'Mặt trời; dương; ánh sáng',compounds:[{word:'太陽',reading:'thái dương',meaning:'mặt trời'},{word:'陽光',reading:'dương quang',meaning:'ánh nắng'}],radical:'阜'},
+{char:'下',hanViet:'Hạ',pinyin:'xià',jyutping:'haa6',meaning:'Dưới; xuống; cấp dưới',compounds:[{word:'天下',reading:'thiên hạ',meaning:'thiên hạ'},{word:'下降',reading:'hạ giáng',meaning:'giảm xuống'}],radical:'一'},
+{char:'寂',hanViet:'Tịch',pinyin:'jì',jyutping:'zik6',meaning:'Yên lặng; vắng vẻ; cô đơn',compounds:[{word:'寂寞',reading:'tịch mịch',meaning:'cô đơn'},{word:'靜寂',reading:'tĩnh tịch',meaning:'yên tĩnh'}],radical:'宀'},
+{char:'寥',hanViet:'Liêu',pinyin:'liáo',jyutping:'liu4',meaning:'Thưa thớt; hiu quạnh; trống vắng',compounds:[{word:'寂寥',reading:'tịch liêu',meaning:'cô quạnh'},{word:'寥落',reading:'liêu lạc',meaning:'thưa thớt, vắng vẻ'}],radical:'宀'},
+{char:'吧',hanViet:'Ba',pinyin:'ba',jyutping:'baa1',meaning:'Trợ từ cuối câu (đề nghị, xác nhận nhẹ)',compounds:[{word:'好吧',reading:'hảo ba',meaning:'được thôi'},{word:'是吧',reading:'thị ba',meaning:'đúng không'}],radical:'口'},
+{char:'權',hanViet:'Quyền',pinyin:'quán',jyutping:'kyun4',meaning:'Quyền lực; quyền hạn',compounds:[{word:'人權',reading:'nhân quyền',meaning:'nhân quyền'},{word:'權力',reading:'quyền lực',meaning:'quyền lực'}],radical:'木'},
+{char:'利',hanViet:'Lợi',pinyin:'lì',jyutping:'lei6',meaning:'Lợi ích; sắc bén; thuận lợi',compounds:[{word:'利益',reading:'lợi ích',meaning:'lợi ích'},{word:'便利',reading:'tiện lợi',meaning:'tiện lợi'}],radical:'禾'},
+{char:'見',hanViet:'Kiến',pinyin:'jiàn',jyutping:'gin3',meaning:'Thấy; gặp; nhìn thấy',compounds:[{word:'見面',reading:'kiến diện',meaning:'gặp mặt'},{word:'發現',reading:'phát hiện',meaning:'phát hiện'}],radical:'見'},
+{char:'你',hanViet:'Nhĩ',pinyin:'nǐ',jyutping:'nei5',meaning:'Bạn; anh; chị (ngôi thứ hai)',compounds:[{word:'你好',reading:'nhĩ hảo',meaning:'xin chào'},{word:'你們',reading:'nhĩ môn',meaning:'các bạn'}],radical:'亻'},
+{char:'早',hanViet:'Tảo',pinyin:'zǎo',jyutping:'zou2',meaning:'Sớm; buổi sáng; từ lâu',compounds:[{word:'早已',reading:'tảo dĩ',meaning:'đã từ lâu'},{word:'早晨',reading:'tảo thần',meaning:'buổi sáng'}],radical:'日'},
+{char:'知',hanViet:'Tri',pinyin:'zhī',jyutping:'zi1',meaning:'Biết; hiểu; tri thức',compounds:[{word:'知道',reading:'tri đạo',meaning:'biết'},{word:'知識',reading:'tri thức',meaning:'tri thức'}],radical:'矢'},
+{char:'高',hanViet:'Cao',pinyin:'gāo',jyutping:'gou1',meaning:'Cao; cao cấp',compounds:[{word:'高山',reading:'cao sơn',meaning:'núi cao'},{word:'高低',reading:'cao đê',meaning:'cao thấp'}],radical:'高'},
+{char:'的',hanViet:'Đích',pinyin:'de',jyutping:'dik1',meaning:'Trợ từ sở hữu, đánh dấu tính từ',compounds:[{word:'目的',reading:'mục đích',meaning:'mục đích'},{word:'的確',reading:'đích xác',meaning:'chắc chắn'}],radical:'白'},
+{char:'山',hanViet:'Sơn',pinyin:'shān',jyutping:'saan1',meaning:'Núi; đồi',compounds:[{word:'山谷',reading:'sơn cốc',meaning:'thung lũng'},{word:'山頂',reading:'sơn đỉnh',meaning:'đỉnh núi'}],radical:'山'},
+{char:'低',hanViet:'Đê',pinyin:'dī',jyutping:'dai1',meaning:'Thấp; cúi xuống',compounds:[{word:'低頭',reading:'đê đầu',meaning:'cúi đầu'},{word:'最低',reading:'tối đê',meaning:'thấp nhất'}],radical:'亻'},
+{char:'谷',hanViet:'Cốc',pinyin:'gǔ',jyutping:'guk1',meaning:'Thung lũng; khe núi',compounds:[{word:'山谷',reading:'sơn cốc',meaning:'thung lũng'},{word:'谷底',reading:'cốc đê',meaning:'đáy thung lũng'}],radical:'谷'},
+{char:'將',hanViet:'Tương',pinyin:'jiāng',jyutping:'zoeng1',meaning:'Sẽ; sắp (trạng từ); tướng lĩnh',compounds:[{word:'將來',reading:'tương lai',meaning:'tương lai'},{word:'將軍',reading:'tướng quân',meaning:'tướng quân'}],radical:'寸'},
+{char:'我',hanViet:'Ngã',pinyin:'wǒ',jyutping:'ngo5',meaning:'Tôi; ta',compounds:[{word:'自我',reading:'tự ngã',meaning:'bản thân'},{word:'我們',reading:'ngã môn',meaning:'chúng tôi'}],radical:'戈'},
+{char:'分',hanViet:'Phân',pinyin:'fēn',jyutping:'fan1',meaning:'Chia; phần; phút; phân biệt',compounds:[{word:'分離',reading:'phân ly',meaning:'chia ly'},{word:'部分',reading:'bộ phận',meaning:'bộ phận'}],radical:'刀'},
+{char:'隔',hanViet:'Cách',pinyin:'gé',jyutping:'gaak3',meaning:'Ngăn cách; cách ly; khoảng cách',compounds:[{word:'隔離',reading:'cách ly',meaning:'cách ly'},{word:'間隔',reading:'gian cách',meaning:'khoảng cách'}],radical:'阜'},
+{char:'兩',hanViet:'Lưỡng',pinyin:'liǎng',jyutping:'loeng5',meaning:'Hai; cả hai; đôi',compounds:[{word:'兩岸',reading:'lưỡng ngạn',meaning:'hai bờ'},{word:'兩地',reading:'lưỡng địa',meaning:'hai nơi'}],radical:'入'},
+{char:'地',hanViet:'Địa',pinyin:'dì',jyutping:'dei6',meaning:'Đất; địa điểm; trạng từ hóa',compounds:[{word:'土地',reading:'thổ địa',meaning:'đất đai'},{word:'地方',reading:'địa phương',meaning:'địa phương'}],radical:'土'},
+{char:'失',hanViet:'Thất',pinyin:'shī',jyutping:'sat1',meaning:'Mất; thất bại; sai lầm',compounds:[{word:'失去',reading:'thất khứ',meaning:'mất đi'},{word:'失落',reading:'thất lạc',meaning:'cảm giác trống rỗng'}],radical:'大'},
+{char:'去',hanViet:'Khứ',pinyin:'qù',jyutping:'heoi3',meaning:'Đi; rời; qua',compounds:[{word:'去年',reading:'khứ niên',meaning:'năm ngoái'},{word:'離去',reading:'ly khứ',meaning:'rời đi'}],radical:'厶'},
+{char:'人',hanViet:'Nhân',pinyin:'rén',jyutping:'jan4',meaning:'Người; con người',compounds:[{word:'人生',reading:'nhân sinh',meaning:'cuộc đời'},{word:'人情',reading:'nhân tình',meaning:'tình người'}],radical:'人'},
+{char:'情',hanViet:'Tình',pinyin:'qíng',jyutping:'cing4',meaning:'Tình cảm; cảm xúc; hoàn cảnh',compounds:[{word:'感情',reading:'cảm tình',meaning:'tình cảm'},{word:'人情',reading:'nhân tình',meaning:'tình người'}],radical:'忄'},
+{char:'味',hanViet:'Vị',pinyin:'wèi',jyutping:'mei6',meaning:'Vị; mùi vị; ý vị; phong vị',compounds:[{word:'味道',reading:'vị đạo',meaning:'hương vị'},{word:'人情味',reading:'nhân tình vị',meaning:'hơi ấm tình người'}],radical:'口'},
+{char:'那',hanViet:'Na',pinyin:'nà',jyutping:'naa5',meaning:'Đó; kia; ấy',compounds:[{word:'那個',reading:'na cá',meaning:'cái đó'},{word:'那裡',reading:'na lý',meaning:'ở đó'}],radical:'邑'},
+{char:'貴',hanViet:'Quý',pinyin:'guì',jyutping:'gwai3',meaning:'Quý giá; đắt tiền; cao quý',compounds:[{word:'貴族',reading:'quý tộc',meaning:'quý tộc'},{word:'珍貴',reading:'trân quý',meaning:'trân quý'}],radical:'貝'},
+{char:'族',hanViet:'Tộc',pinyin:'zú',jyutping:'zuk6',meaning:'Tộc; dòng tộc; giai tầng xã hội',compounds:[{word:'貴族',reading:'quý tộc',meaning:'quý tộc'},{word:'民族',reading:'dân tộc',meaning:'dân tộc'}],radical:'方'},
+{char:'遊',hanViet:'Du',pinyin:'yóu',jyutping:'jau4',meaning:'Chơi; du lịch; lang thang',compounds:[{word:'遊戲',reading:'du hí',meaning:'trò chơi'},{word:'旅遊',reading:'lữ du',meaning:'du lịch'}],radical:'辶'},
+{char:'戲',hanViet:'Hí',pinyin:'xì',jyutping:'hei3',meaning:'Trò chơi; kịch; đùa giỡn',compounds:[{word:'遊戲',reading:'du hí',meaning:'trò chơi'},{word:'戲劇',reading:'hí kịch',meaning:'kịch nghệ'}],radical:'戈'},
+{char:'街',hanViet:'Nhai',pinyin:'jiē',jyutping:'gaai1',meaning:'Đường phố; phố xá',compounds:[{word:'街道',reading:'nhai đạo',meaning:'đường phố'},{word:'街角',reading:'nhai giác',meaning:'góc phố'}],radical:'行'},
+{char:'角',hanViet:'Giác',pinyin:'jiǎo',jyutping:'gok3',meaning:'Góc; sừng; vai (diễn xuất)',compounds:[{word:'街角',reading:'nhai giác',meaning:'góc phố'},{word:'角色',reading:'giác sắc',meaning:'vai diễn'}],radical:'角'},
+{char:'記',hanViet:'Ký',pinyin:'jì',jyutping:'gei3',meaning:'Ghi nhớ; ghi chép; ký ức',compounds:[{word:'遊記',reading:'du ký',meaning:'ký sự du lịch'},{word:'記憶',reading:'ký ức',meaning:'ký ức'}],radical:'讠'},
+{char:'天',hanViet:'Thiên',pinyin:'tiān',jyutping:'tin1',meaning:'Trời; bầu trời; ngày',compounds:[{word:'天空',reading:'thiên không',meaning:'bầu trời'},{word:'天邊',reading:'thiên biên',meaning:'chân trời'}],radical:'大'},
+{char:'真',hanViet:'Chân',pinyin:'zhēn',jyutping:'zan1',meaning:'Thật; chân thực; chân chính',compounds:[{word:'真心',reading:'chân tâm',meaning:'lòng thật'},{word:'真實',reading:'chân thực',meaning:'chân thực'}],radical:'目'},
+{char:'到',hanViet:'Đáo',pinyin:'dào',jyutping:'dou3',meaning:'Đến; tới; đạt được',compounds:[{word:'到達',reading:'đáo đạt',meaning:'đến nơi'},{word:'做到',reading:'tố đáo',meaning:'làm được'}],radical:'刀'},
+{char:'信',hanViet:'Tín',pinyin:'xìn',jyutping:'seon3',meaning:'Tin; tin tưởng; thư từ; thành tín',compounds:[{word:'信任',reading:'tín nhiệm',meaning:'tin tưởng'},{word:'相信',reading:'tương tín',meaning:'tin vào'}],radical:'亻'},
+{char:'心',hanViet:'Tâm',pinyin:'xīn',jyutping:'sam1',meaning:'Tim; tâm; lòng; trung tâm',compounds:[{word:'真心',reading:'chân tâm',meaning:'chân thành'},{word:'內心',reading:'nội tâm',meaning:'nội tâm'}],radical:'心'},
+{char:'太',hanViet:'Thái',pinyin:'tài',jyutping:'taai3',meaning:'Quá; rất; thái (lớn nhất)',compounds:[{word:'太陽',reading:'thái dương',meaning:'mặt trời'},{word:'太過',reading:'thái quá',meaning:'quá mức'}],radical:'大'},
+{char:'兒',hanViet:'Nhi',pinyin:'ér',jyutping:'ji4',meaning:'Trẻ em; con; (hậu tố)',compounds:[{word:'兒戲',reading:'nhi hí',meaning:'trò trẻ con, không nghiêm túc'},{word:'兒童',reading:'nhi đồng',meaning:'trẻ em'}],radical:'儿'},
+{char:'快',hanViet:'Khoái',pinyin:'kuài',jyutping:'faai3',meaning:'Nhanh; vui sướng; sảng khoái',compounds:[{word:'快樂',reading:'khoái lạc',meaning:'vui vẻ'},{word:'快感',reading:'khoái cảm',meaning:'cảm giác thỏa mãn'}],radical:'忄'},
+{char:'樂',hanViet:'Lạc',pinyin:'lè',jyutping:'lok6',meaning:'Vui vẻ; hạnh phúc; âm nhạc',compounds:[{word:'快樂',reading:'khoái lạc',meaning:'vui vẻ'},{word:'音樂',reading:'âm nhạc',meaning:'âm nhạc'}],radical:'木'},
+{char:'過',hanViet:'Quá',pinyin:'guò',jyutping:'gwo3',meaning:'Qua; trải qua; vượt qua',compounds:[{word:'過去',reading:'quá khứ',meaning:'quá khứ'},{word:'過活',reading:'quá hoạt',meaning:'sống qua ngày'}],radical:'辶'},
+{char:'生',hanViet:'Sinh',pinyin:'shēng',jyutping:'sang1',meaning:'Sống; sinh ra; cuộc sống',compounds:[{word:'生存',reading:'sinh tồn',meaning:'sinh tồn'},{word:'生活',reading:'sinh hoạt',meaning:'cuộc sống'}],radical:'生'},
+{char:'活',hanViet:'Hoạt',pinyin:'huó',jyutping:'wut6',meaning:'Sống; linh hoạt; hoạt động',compounds:[{word:'生活',reading:'sinh hoạt',meaning:'cuộc sống'},{word:'活動',reading:'hoạt động',meaning:'hoạt động'}],radical:'氵'},
+{char:'拼',hanViet:'Bính',pinyin:'pīn',jyutping:'ping3',meaning:'Cố hết sức; ghép lại; liều lĩnh',compounds:[{word:'拼命',reading:'bính mệnh',meaning:'liều mạng, dốc hết sức'},{word:'拼搏',reading:'bính bác',meaning:'phấn đấu quyết liệt'}],radical:'扌'},
+{char:'命',hanViet:'Mệnh',pinyin:'mìng',jyutping:'ming6',meaning:'Mệnh; số phận; tính mạng',compounds:[{word:'生命',reading:'sinh mệnh',meaning:'sinh mệnh'},{word:'命運',reading:'mệnh vận',meaning:'số phận'}],radical:'口'},
+{char:'存',hanViet:'Tồn',pinyin:'cún',jyutping:'cyun4',meaning:'Tồn tại; lưu giữ; gửi',compounds:[{word:'生存',reading:'sinh tồn',meaning:'sinh tồn'},{word:'存在',reading:'tồn tại',meaning:'tồn tại'}],radical:'子'},
+{char:'幾',hanViet:'Kỷ',pinyin:'jǐ',jyutping:'gei2',meaning:'Mấy; bao nhiêu; gần',compounds:[{word:'幾多',reading:'kỷ đa',meaning:'bao nhiêu (Quảng Đông)'},{word:'幾乎',reading:'kỷ hồ',meaning:'gần như'}],radical:'幺'},
+{char:'多',hanViet:'Đa',pinyin:'duō',jyutping:'do1',meaning:'Nhiều; đa số',compounds:[{word:'幾多',reading:'kỷ đa',meaning:'bao nhiêu'},{word:'多少',reading:'đa thiểu',meaning:'bao nhiêu'}],radical:'夕'},
+{char:'位',hanViet:'Vị',pinyin:'wèi',jyutping:'wai6',meaning:'Vị trí; chỗ; lượng từ đếm người',compounds:[{word:'地位',reading:'địa vị',meaning:'địa vị'},{word:'位置',reading:'vị trí',meaning:'vị trí'}],radical:'亻'},
+{char:'於',hanViet:'Ư',pinyin:'yú',jyutping:'jyu1',meaning:'Ở; tại; đối với (văn ngôn)',compounds:[{word:'位於',reading:'vị ư',meaning:'tọa lạc tại'},{word:'在於',reading:'tại ư',meaning:'nằm ở chỗ'}],radical:'方'},
+{char:'之',hanViet:'Chi',pinyin:'zhī',jyutping:'zi1',meaning:'Của; đi (văn cổ); trợ từ',compounds:[{word:'之間',reading:'chi gian',meaning:'ở giữa'},{word:'總之',reading:'tổng chi',meaning:'tóm lại'}],radical:'丿'},
+{char:'巔',hanViet:'Điên',pinyin:'diān',jyutping:'din1',meaning:'Đỉnh cao nhất; đỉnh núi',compounds:[{word:'山巔',reading:'sơn điên',meaning:'đỉnh núi'},{word:'巔峰',reading:'điên phong',meaning:'đỉnh cao'}],radical:'山'},
+{char:'俯',hanViet:'Phủ',pinyin:'fǔ',jyutping:'fu2',meaning:'Cúi xuống; nhìn xuống từ trên',compounds:[{word:'俯瞰',reading:'phủ khám',meaning:'nhìn xuống từ trên'},{word:'俯視',reading:'phủ thị',meaning:'nhìn xuống'}],radical:'亻'},
+{char:'瞰',hanViet:'Khám',pinyin:'kàn',jyutping:'ham3',meaning:'Nhìn từ trên cao; bao quát',compounds:[{word:'俯瞰',reading:'phủ khám',meaning:'nhìn từ trên cao xuống'},{word:'鳥瞰',reading:'điểu khám',meaning:'nhìn bao quát từ trên'}],radical:'目'},
+{char:'疲',hanViet:'Bì',pinyin:'pí',jyutping:'pei4',meaning:'Mệt mỏi; kiệt sức',compounds:[{word:'疲倦',reading:'bì quyện',meaning:'mệt mỏi'},{word:'疲憊',reading:'bì bội',meaning:'kiệt sức'}],radical:'疒'},
+{char:'倦',hanViet:'Quyện',pinyin:'juàn',jyutping:'gyun6',meaning:'Mệt; chán nản; uể oải',compounds:[{word:'疲倦',reading:'bì quyện',meaning:'mệt mỏi'},{word:'倦意',reading:'quyện ý',meaning:'cảm giác uể oải'}],radical:'亻'},
+{char:'渴',hanViet:'Khát',pinyin:'kě',jyutping:'hot3',meaning:'Khát; khao khát; mong mỏi',compounds:[{word:'渴望',reading:'khát vọng',meaning:'khát vọng'},{word:'口渴',reading:'khẩu khát',meaning:'khát nước'}],radical:'氵'},
+{char:'望',hanViet:'Vọng',pinyin:'wàng',jyutping:'mong6',meaning:'Mong; nhìn xa; trông đợi; vọng',compounds:[{word:'渴望',reading:'khát vọng',meaning:'khát vọng'},{word:'希望',reading:'hy vọng',meaning:'hy vọng'}],radical:'月'},
+{char:'被',hanViet:'Bị',pinyin:'bèi',jyutping:'bei6',meaning:'Bị (thụ động); chăn đắp',compounds:[{word:'被動',reading:'bị động',meaning:'thụ động'},{word:'被迫',reading:'bị bách',meaning:'bị ép buộc'}],radical:'衤'},
+{char:'成',hanViet:'Thành',pinyin:'chéng',jyutping:'sing4',meaning:'Thành; hoàn thành; trở thành',compounds:[{word:'成功',reading:'thành công',meaning:'thành công'},{word:'成全',reading:'thành toàn',meaning:'giúp người đạt được điều mong muốn'}],radical:'戈'},
+{char:'全',hanViet:'Toàn',pinyin:'quán',jyutping:'cyun4',meaning:'Toàn; hoàn toàn; đầy đủ; tất cả',compounds:[{word:'成全',reading:'thành toàn',meaning:'giúp hoàn thành tâm nguyện'},{word:'完全',reading:'hoàn toàn',meaning:'hoàn toàn'}],radical:'入'},
+{char:'努',hanViet:'Nỗ',pinyin:'nǔ',jyutping:'nou5',meaning:'Cố gắng; nỗ lực',compounds:[{word:'努力',reading:'nỗ lực',meaning:'nỗ lực'}],radical:'力'},
+{char:'力',hanViet:'Lực',pinyin:'lì',jyutping:'lik6',meaning:'Sức lực; năng lực; cố gắng',compounds:[{word:'努力',reading:'nỗ lực',meaning:'nỗ lực'},{word:'能力',reading:'năng lực',meaning:'năng lực'}],radical:'力'},
+{char:'做',hanViet:'Tố',pinyin:'zuò',jyutping:'zou6',meaning:'Làm; thực hiện; đóng vai trò',compounds:[{word:'做人',reading:'tố nhân',meaning:'làm người'},{word:'做到',reading:'tố đáo',meaning:'làm được'}],radical:'亻'},
+{char:'誰',hanViet:'Thùy',pinyin:'shuí',jyutping:'seoi4',meaning:'Ai; người nào',compounds:[{word:'誰人',reading:'thùy nhân',meaning:'ai (dùng trong Quảng Đông)'},{word:'不知誰',reading:'bất tri thùy',meaning:'không biết là ai'}],radical:'讠'},
+{char:'怕',hanViet:'Phạ',pinyin:'pà',jyutping:'paa3',meaning:'Sợ; lo ngại; e rằng',compounds:[{word:'害怕',reading:'hại phạ',meaning:'sợ hãi'},{word:'可怕',reading:'khả phạ',meaning:'đáng sợ'}],radical:'忄'},
+{char:'喘',hanViet:'Suyễn',pinyin:'chuǎn',jyutping:'cyun2',meaning:'Thở hổn hển; hụt hơi; suyễn',compounds:[{word:'氣喘',reading:'khí suyễn',meaning:'hổn hển, khó thở'},{word:'喘氣',reading:'suyễn khí',meaning:'thở hổn hển'}],radical:'口'},
+{char:'但',hanViet:'Đãn',pinyin:'dàn',jyutping:'daan6',meaning:'Nhưng; tuy nhiên; chỉ',compounds:[{word:'但是',reading:'đãn thị',meaning:'nhưng mà'},{word:'不但',reading:'bất đãn',meaning:'không chỉ'}],radical:'亻'},
+{char:'終',hanViet:'Chung',pinyin:'zhōng',jyutping:'zung1',meaning:'Cuối; kết thúc; rốt cuộc; suốt',compounds:[{word:'終點',reading:'chung điểm',meaning:'điểm cuối, đích đến'},{word:'始終',reading:'thủy chung',meaning:'từ đầu đến cuối'}],radical:'糸'},
+{char:'點',hanViet:'Điểm',pinyin:'diǎn',jyutping:'dim2',meaning:'Điểm; đích; chút ít; bật lên',compounds:[{word:'終點',reading:'chung điểm',meaning:'điểm cuối, đích đến'},{word:'一點',reading:'nhất điểm',meaning:'một chút'}],radical:'黑'},
+{char:'掛',hanViet:'Quải',pinyin:'guà',jyutping:'gwaa3',meaning:'Treo; móc; vấn vương; nhớ nhung',compounds:[{word:'掛念',reading:'quải niệm',meaning:'nhớ thương'},{word:'懸掛',reading:'huyền quải',meaning:'treo lơ lửng'}],radical:'扌'},
+{char:'邊',hanViet:'Biên',pinyin:'biān',jyutping:'bin1',meaning:'Bên; cạnh; biên giới; chân trời',compounds:[{word:'天邊',reading:'thiên biên',meaning:'chân trời'},{word:'邊界',reading:'biên giới',meaning:'biên giới'}],radical:'辶'}
+];
+
+function load() {
+  try {
+    const s = localStorage.getItem(KEY);
+    data = s ? JSON.parse(s) : [...SAMPLE];
+  } catch { data = [...SAMPLE]; }
+  if (!data.length) data = [...SAMPLE];
+  // Merge VOCAB_300
+  const existingChars = new Set(data.map(d => d.char));
+  let added = 0;
+  VOCAB_300.forEach((v, i) => {
+    if (!existingChars.has(v.char)) {
+      data.push({ ...v, id: 'v' + String(i+1).padStart(3,'0'), notes: v.notes||'', status:'new', dateAdded: '2026-04-11' });
+      existingChars.add(v.char);
+      added++;
+    }
+  });
+  // Merge VOCAB_LYRICS
+  VOCAB_LYRICS.forEach((v, i) => {
+    if (!existingChars.has(v.char)) {
+      data.push({ ...v, id: 'lyr' + String(i+1).padStart(3,'0'), notes: '', status:'new', dateAdded: '2026-04-12' });
+      existingChars.add(v.char);
+      added++;
+    }
+  });
+  save();
+}
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(data));
+}
+
+// ═══════════════════════════════════════
+// CONNECTIONS
+// ═══════════════════════════════════════
+const EDGE_COLOR = { radical:'#8b5cf6', sound:'#f59e0b', compound:'#14b8a6' };
+const STATUS_COLOR = { new:'#6366f1', reviewing:'#f59e0b', mastered:'#10b981' };
+const STATUS_LABEL = { new:'Mới học', reviewing:'Đang ôn', mastered:'Đã thuộc' };
+const TYPE_LABEL = { radical:'cùng bộ thủ', sound:'đồng âm', compound:'từ ghép' };
+
+function normalRad(r) {
+  return (r || '').replace('氵','水').replace('亻','人').replace('忄','心').replace('讠','言').replace('钅','金');
+}
+function normalHV(hv) {
+  return (hv || '').toLowerCase().trim();
+}
+
+function buildEdges(nodes) {
+  const edges = [];
+  const seen = new Set();
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i+1; j < nodes.length; j++) {
+      const a = nodes[i], b = nodes[j];
+      const key = a.id+'-'+b.id;
+      // Radical
+      if (normalRad(a.radical) && normalRad(a.radical) === normalRad(b.radical)) {
+        edges.push({source:a.id, target:b.id, type:'radical'});
+        seen.add(key); continue;
+      }
+      // Same HV sound
+      if (normalHV(a.hanViet) === normalHV(b.hanViet) && normalHV(a.hanViet) && !seen.has(key)) {
+        edges.push({source:a.id, target:b.id, type:'sound'});
+        seen.add(key); continue;
+      }
+      // Compound relationship
+      if (!seen.has(key)) {
+        const aWords = (a.compounds||[]).map(c=>c.word||'');
+        const bWords = (b.compounds||[]).map(c=>c.word||'');
+        if (aWords.some(w=>w.includes(b.char)) || bWords.some(w=>w.includes(a.char))) {
+          edges.push({source:a.id, target:b.id, type:'compound'});
+          seen.add(key);
+        }
+      }
+    }
+  }
+  return edges;
+}
+
+function getRelated(id) {
+  const allEdges = buildEdges(data);
+  return allEdges
+    .filter(e => e.source===id || e.target===id)
+    .map(e => ({
+      char: data.find(d => d.id === (e.source===id ? e.target : e.source)),
+      type: e.type
+    }))
+    .filter(x => x.char);
+}
+
+// ═══════════════════════════════════════
+// FILTERED DATA
+// ═══════════════════════════════════════
+function filtered() {
+  return data.filter(d => {
+    const matchStatus = statusFilter === 'all' || d.status === statusFilter;
+    const q = searchQuery.toLowerCase();
+    const matchSearch = !q ||
+      d.char.includes(q) || (d.hanViet||'').toLowerCase().includes(q) ||
+      (d.pinyin||'').toLowerCase().includes(q) || (d.jyutping||'').toLowerCase().includes(q) ||
+      (d.meaning||'').toLowerCase().includes(q) || (d.radical||'').includes(q);
+    return matchStatus && matchSearch;
+  });
+}
+
+// ═══════════════════════════════════════
+// GRAPH
+// ═══════════════════════════════════════
+function initGraph() {
+  const el = document.getElementById('graph-svg');
+  const W = el.clientWidth || 900, H = el.clientHeight || 600;
+  d3.select('#graph-svg').selectAll('*').remove();
+  svg = d3.select('#graph-svg');
+  svg.call(d3.zoom().scaleExtent([0.2, 3.5]).on('zoom', e => g.attr('transform', e.transform)));
+  g = svg.append('g');
+  // edge markers / defs
+  svg.append('defs');
+  linkLayer = g.append('g');
+  nodeLayer = g.append('g');
+  renderGraph();
+}
+
+function renderGraph() {
+  const nodes = filtered().map(d => ({ ...d })); // shallow copy for simulation
+  const nodeMap = new Map(nodes.map(n => [n.id, n]));
+  const allEdges = buildEdges(data);
+  const edges = allEdges
+    .filter(e => nodeMap.has(e.source) && nodeMap.has(e.target) && activeEdgeTypes[e.type])
+    .map(e => ({ ...e }));
+
+  // Degree
+  const deg = {};
+  nodes.forEach(n => deg[n.id] = 0);
+  edges.forEach(e => { deg[e.source]=(deg[e.source]||0)+1; deg[e.target]=(deg[e.target]||0)+1; });
+
+  const empty = document.getElementById('empty-state');
+  empty.style.display = nodes.length === 0 ? 'flex' : 'none';
+
+  if (simulation) simulation.stop();
+  const W = document.getElementById('graph-svg').clientWidth || 900;
+  const H = document.getElementById('graph-svg').clientHeight || 600;
+
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(edges).id(d=>d.id).distance(e => e.type==='compound' ? 95 : 125).strength(0.45))
+    .force('charge', d3.forceManyBody().strength(-260))
+    .force('center', d3.forceCenter(W/2, H/2))
+    .force('collide', d3.forceCollide(d => 28 + (deg[d.id]||0)*2));
+
+  // ── EDGES ──
+  linkLayer.selectAll('line').remove();
+  const link = linkLayer.selectAll('line').data(edges).enter().append('line')
+    .attr('stroke', e => EDGE_COLOR[e.type])
+    .attr('stroke-width', e => e.type==='compound' ? 2.5 : 1.5)
+    .attr('stroke-opacity', 0.65)
+    .attr('stroke-dasharray', e => e.type==='sound' ? '6,4' : e.type==='radical' ? '9,3' : 'none');
+
+  // ── NODES ──
+  nodeLayer.selectAll('g.node').remove();
+  const node = nodeLayer.selectAll('g.node').data(nodes, d=>d.id).enter()
+    .append('g').attr('class','node').style('cursor','pointer')
+    .call(d3.drag()
+      .on('start', (e,d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag', (e,d) => { d.fx=e.x; d.fy=e.y; })
+      .on('end', (e,d) => { if (!e.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; }))
+    .on('click', (e,d) => { e.stopPropagation(); selectNode(d.id); })
+    .on('mouseenter', (e,d) => {
+      const tt = document.getElementById('tooltip');
+      tt.innerHTML = `<strong style="font-size:16px">${d.char}</strong> &nbsp;${d.hanViet}<br><span style="color:var(--text-muted)">${d.meaning}</span>`;
+      tt.classList.add('show');
+    })
+    .on('mousemove', e => {
+      const tt = document.getElementById('tooltip');
+      tt.style.left = (e.clientX+14)+'px'; tt.style.top = (e.clientY-10)+'px';
+    })
+    .on('mouseleave', () => document.getElementById('tooltip').classList.remove('show'));
+
+  node.append('circle')
+    .attr('r', d => 22 + (deg[d.id]||0)*2)
+    .attr('fill', d => STATUS_COLOR[d.status]+'22')
+    .attr('stroke', d => selectedId===d.id ? 'white' : STATUS_COLOR[d.status])
+    .attr('stroke-width', d => selectedId===d.id ? 3 : 1.8);
+
+  node.append('text')
+    .text(d => d.char)
+    .attr('text-anchor','middle').attr('dy','0.4em')
+    .attr('font-size', d => 17 + (deg[d.id]||0)*1.5)
+    .attr('fill', d => STATUS_COLOR[d.status])
+    .attr('pointer-events','none');
+
+  node.append('text')
+    .text(d => d.hanViet)
+    .attr('text-anchor','middle')
+    .attr('dy', d => 22 + (deg[d.id]||0)*2 + 14)
+    .attr('font-size', 10)
+    .attr('fill','#8b949e')
+    .attr('pointer-events','none');
+
+  simulation.on('tick', () => {
+    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
+        .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+    node.attr('transform', d => `translate(${d.x},${d.y})`);
+  });
+
+  svg.on('click', () => closeDetail());
+  updateStats();
+}
+
+// ═══════════════════════════════════════
+// DETAIL PANEL
+// ═══════════════════════════════════════
+function selectNode(id) {
+  selectedId = id;
+  const d = data.find(x => x.id===id);
+  if (!d) return;
+
+  // Highlight
+  nodeLayer.selectAll('circle')
+    .attr('stroke', x => x.id===id ? 'white' : STATUS_COLOR[x.status])
+    .attr('stroke-width', x => x.id===id ? 3 : 1.8);
+
+  document.getElementById('detail-char').textContent = d.char;
+  document.getElementById('detail-readings').innerHTML = `
+    <div class="reading-row"><span class="reading-label">Hán Việt</span><span class="reading-value">${d.hanViet||'—'}</span></div>
+    <div class="reading-row"><span class="reading-label">Phổ Thông</span><span class="reading-value">${d.pinyin||'—'}</span></div>
+    <div class="reading-row"><span class="reading-label">Quảng Đông</span><span class="reading-value">${d.jyutping||'—'}</span></div>
+  `;
+
+  const related = getRelated(id);
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="meta-row">
+      <div class="meta-box"><div class="val">${d.radical||'—'}</div><div class="lbl">Bộ thủ</div></div>
+      <div class="meta-box">
+        <span class="status-badge ${d.status}" title="Nhấn để đổi" onclick="cycleStatus('${d.id}')">${STATUS_LABEL[d.status]}</span>
+        <div class="lbl" style="margin-top:5px">Trạng thái</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="ds-label">Nghĩa</div>
+      <div class="ds-text">${d.meaning||'—'}</div>
+    </div>
+
+    ${d.compounds?.length ? `
+    <div>
+      <div class="ds-label">Từ ghép</div>
+      ${d.compounds.map(c=>`
+        <div class="compound-item">
+          <span class="cw">${c.word}</span>
+          <span class="cm">${c.reading}${c.meaning ? ' — '+c.meaning : ''}</span>
+        </div>`).join('')}
+    </div>` : ''}
+
+    ${related.length ? `
+    <div>
+      <div class="ds-label">Liên quan (${related.length})</div>
+      <div class="related-wrap">
+        ${related.map(r=>`
+          <span class="related-chip" onclick="selectNode('${r.char.id}')">
+            ${r.char.char}<small>${TYPE_LABEL[r.type]}</small>
+          </span>`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${d.notes ? `
+    <div>
+      <div class="ds-label">Ghi chú</div>
+      <div class="note-text">${d.notes}</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function closeDetail() {
+  selectedId = null;
+  document.getElementById('detail-panel').classList.remove('open');
+  if (nodeLayer) nodeLayer.selectAll('circle')
+    .attr('stroke', d => STATUS_COLOR[d.status]).attr('stroke-width', 1.8);
+}
+
+function cycleStatus(id) {
+  const d = data.find(x=>x.id===id);
+  if (!d) return;
+  d.status = {new:'reviewing',reviewing:'mastered',mastered:'new'}[d.status];
+  save();
+  selectNode(id);
+  if (currentView==='graph') renderGraph();
+  else renderList();
+}
+
+function editCurrent() { if (selectedId) openModal(selectedId); }
+function deleteById(id) {
+  const d = data.find(x=>x.id===id);
+  if (!d) return;
+  if (!confirm(`Xóa chữ "${d.char}" khỏi kho?`)) return;
+  data = data.filter(x=>x.id!==id);
+  save();
+  if (selectedId===id) closeDetail();
+  if (currentView==='graph') renderGraph(); else renderList();
+  updateStats();
+  updateFabCounts();
+}
+
+function deleteCurrent() {
+  if (!selectedId) return;
+  deleteById(selectedId);
+}
+
+// ═══════════════════════════════════════
+// LIST VIEW
+// ═══════════════════════════════════════
+function sortBy(field) {
+  if (sortField === field) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField = field;
+    sortDir = 'asc';
+  }
+  renderList();
+}
+
+function renderList() {
+  let rows = filtered();
+
+  // apply sort
+  if (sortField) {
+    rows = [...rows].sort((a, b) => {
+      const av = (a[sortField] || '').toLowerCase();
+      const bv = (b[sortField] || '').toLowerCase();
+      return sortDir === 'asc' ? av.localeCompare(bv, 'vi') : bv.localeCompare(av, 'vi');
+    });
+  }
+
+  document.getElementById('list-body').innerHTML = rows.map(d => `
+    <tr onclick="selectNode('${d.id}');setView('graph',document.querySelector('.view-btn'))">
+      <td class="char-cell">${d.char}</td>
+      <td>${d.hanViet||'—'}</td>
+      <td class="muted-cell">${d.pinyin||'—'}</td>
+      <td class="muted-cell">${d.jyutping||'—'}</td>
+      <td class="meaning-cell">${d.meaning||'—'}</td>
+      <td>${d.radical||'—'}</td>
+      <td><span class="status-badge ${d.status}">${STATUS_LABEL[d.status]}</span></td>
+      <td><button class="row-del-btn" onclick="event.stopPropagation();deleteById('${d.id}')">✕</button></td>
+    </tr>`).join('');
+
+  // update sort indicators on headers
+  ['hanViet','pinyin','jyutping'].forEach(f => {
+    const th = document.getElementById('th-' + f);
+    if (!th) return;
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (sortField === f) th.classList.add('sort-' + sortDir);
+  });
+
+  updateStats();
+}
+
+// ═══════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════
+function openModal(id=null) {
+  editingId = id;
+  const d = id ? data.find(x=>x.id===id) : null;
+  document.getElementById('modal-title').textContent = d ? 'Chỉnh sửa Hán tự' : 'Thêm Hán tự mới';
+  document.getElementById('f-char').value = d?.char||'';
+  document.getElementById('f-hanviet').value = d?.hanViet||'';
+  document.getElementById('f-pinyin').value = d?.pinyin||'';
+  document.getElementById('f-jyutping').value = d?.jyutping||'';
+  document.getElementById('f-radical').value = d?.radical||'';
+  document.getElementById('f-meaning').value = d?.meaning||'';
+  document.getElementById('f-compounds').value = (d?.compounds||[]).map(c=>`${c.word} | ${c.reading} | ${c.meaning}`).join('\n');
+  document.getElementById('f-notes').value = d?.notes||'';
+  document.getElementById('f-status').value = d?.status||'new';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('f-char').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editingId = null;
+}
+
+function saveChar() {
+  const char = document.getElementById('f-char').value.trim();
+  const hanViet = document.getElementById('f-hanviet').value.trim();
+  const meaning = document.getElementById('f-meaning').value.trim();
+  if (!char||!hanViet||!meaning) { alert('Cần có: Chữ Hán, Âm Hán Việt và Nghĩa!'); return; }
+
+  const compounds = document.getElementById('f-compounds').value.trim()
+    .split('\n').filter(l=>l.trim()).map(line => {
+      const [word, reading, meaning] = line.split('|').map(s=>s.trim());
+      return {word:word||'', reading:reading||'', meaning:meaning||''};
+    });
+
+  const entry = {
+    id: editingId || Date.now().toString(),
+    char, hanViet,
+    pinyin: document.getElementById('f-pinyin').value.trim(),
+    jyutping: document.getElementById('f-jyutping').value.trim(),
+    meaning, compounds,
+    radical: document.getElementById('f-radical').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+    status: document.getElementById('f-status').value,
+    dateAdded: editingId ? data.find(x=>x.id===editingId)?.dateAdded : new Date().toISOString().slice(0,10)
+  };
+
+  if (editingId) {
+    const idx = data.findIndex(x=>x.id===editingId);
+    if (idx!==-1) data[idx]=entry;
+  } else {
+    data.push(entry);
+  }
+  save(); closeModal();
+  if (currentView==='graph') renderGraph(); else renderList();
+  if (entry.id) setTimeout(()=>selectNode(entry.id), 400);
+}
+
+// ═══════════════════════════════════════
+// VIEW + FILTER + SEARCH
+// ═══════════════════════════════════════
+function setView(view, btn) {
+  currentView = view;
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (view==='graph') {
+    document.getElementById('graph-view').style.display = '';
+    document.getElementById('list-view').classList.remove('active');
+    setTimeout(renderGraph, 50);
+  } else {
+    document.getElementById('graph-view').style.display = 'none';
+    document.getElementById('list-view').classList.add('active');
+    renderList();
+  }
+}
+
+function setFilter(f, btn) {
+  statusFilter = f;
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('active-filter'));
+  btn.classList.add('active-filter');
+  if (currentView==='graph') renderGraph(); else renderList();
+}
+
+function toggleEdge(type, el) {
+  activeEdgeTypes[type] = !activeEdgeTypes[type];
+  el.classList.toggle('inactive', !activeEdgeTypes[type]);
+  if (currentView==='graph') renderGraph();
+}
+
+document.getElementById('search-box').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  if (currentView==='graph') renderGraph(); else renderList();
+});
+
+// ═══════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════
+function updateStats() {
+  document.getElementById('s-total').textContent = data.length;
+  document.getElementById('s-new').textContent = data.filter(d=>d.status==='new').length;
+  document.getElementById('s-rev').textContent = data.filter(d=>d.status==='reviewing').length;
+  document.getElementById('s-mas').textContent = data.filter(d=>d.status==='mastered').length;
+}
+
+// ═══════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════
+function exportData() {
+  const date = new Date().toISOString().slice(0,10);
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `hantu-kho-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error('Sai định dạng');
+      const merged = [...data];
+      let added = 0, restored = 0;
+      imported.forEach(item => {
+        const existing = merged.find(d => d.char === item.char);
+        if (!existing) {
+          // Chữ hoàn toàn mới — thêm vào
+          merged.push({...item, id: item.id || Date.now().toString() + Math.random()});
+          added++;
+        } else {
+          // Chữ đã có — khôi phục trạng thái học của người dùng
+          if (item.status && item.status !== 'new') {
+            existing.status    = item.status;
+            existing.notes     = item.notes     !== undefined ? item.notes     : existing.notes;
+            existing.dateAdded = item.dateAdded || existing.dateAdded;
+            restored++;
+          }
+        }
+      });
+      data = merged;
+      save();
+      if (currentView==='graph') renderGraph(); else renderList();
+      updateStats();
+      updateFabCounts();
+      const parts = [];
+      if (added    > 0) parts.push(`thêm ${added} chữ mới`);
+      if (restored > 0) parts.push(`khôi phục trạng thái ${restored} chữ`);
+      const unchanged = imported.length - added - restored;
+      if (unchanged > 0) parts.push(`${unchanged} chữ giữ nguyên`);
+      alert('✓ Import xong! ' + (parts.join(', ') || 'Không có thay đổi') + '.');
+    } catch {
+      alert('File không hợp lệ. Hãy dùng file .json được export từ Hán Tự Kho.');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════
+document.addEventListener('keydown', e => {
+  const fcOpen = document.getElementById('fc-overlay').classList.contains('open');
+  const onSummary = document.getElementById('fc-summary').classList.contains('show');
+
+  if (fcOpen && !onSummary) {
+    const inInput = document.activeElement === document.getElementById('fc-input');
+    if (e.key === 'Enter' && inInput) {
+      e.preventDefault();
+      submitAnswer();
+    }
+    // Del outside input = undo
+    if ((e.key === 'Delete') && !inInput) {
+      e.preventDefault();
+      prevCard();
+    }
+    return;
+  }
+
+  if (e.key==='Escape') { closeModal(); closeDetail(); closeFlashcard(); }
+  if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); document.getElementById('search-box').focus(); }
+});
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target===document.getElementById('modal-overlay')) closeModal();
+});
+
+// ═══════════════════════════════════════
+// FLASHCARD
+// ═══════════════════════════════════════
+const FC_SIZE = 10;
+let fcQueue         = [];
+let fcIndex         = 0;
+let fcRevealed      = false;
+let fcAnswered      = false;
+let fcPendingRating = null;
+let fcResults       = { reviewing: 0, mastered: 0 };
+let fcMode          = 'new';
+let fcHistory       = [];
+
+function updateFabCounts() {
+  document.getElementById('fab-count-new').textContent =
+    data.filter(d => d.status === 'new').length;
+  document.getElementById('fab-count-rev').textContent =
+    data.filter(d => d.status === 'reviewing').length;
+  document.getElementById('fab-count-mas').textContent =
+    data.filter(d => d.status === 'mastered').length;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startFlashcard(mode) {
+  const pool = data.filter(d => d.status === mode);
+  if (!pool.length) {
+    const msgs = {
+      new:       'Không có chữ nào ở trạng thái "Mới học".',
+      reviewing: 'Không có chữ nào ở trạng thái "Đang ôn".',
+      mastered:  'Không có chữ nào ở trạng thái "Đã thuộc".'
+    };
+    alert(msgs[mode] || 'Không có dữ liệu.');
+    return;
+  }
+  fcMode    = mode;
+  fcQueue   = shuffle(pool).slice(0, FC_SIZE);
+  fcIndex   = 0;
+  fcResults = { reviewing: 0, mastered: 0 };
+  fcHistory = [];
+
+  const labels = { new: '✦ Học mới', reviewing: '↻ Ôn tập', mastered: '★ Kiểm tra' };
+  document.getElementById('fc-label').textContent = labels[mode] || mode;
+
+  document.getElementById('fc-summary').classList.remove('show');
+  document.getElementById('fc-card').style.display   = 'flex';
+  document.getElementById('fc-footer').style.display = 'flex';
+
+  document.getElementById('fc-overlay').classList.add('open');
+  showCard();
+}
+
+function showCard() {
+  const d = fcQueue[fcIndex];
+  fcRevealed      = false;
+  fcAnswered      = false;
+  fcPendingRating = null;
+
+  // progress
+  const pct = (fcIndex / fcQueue.length) * 100;
+  document.getElementById('fc-progress-bar').style.width = pct + '%';
+  document.getElementById('fc-counter').textContent = `${fcIndex + 1} / ${fcQueue.length}`;
+
+  // front — character
+  document.getElementById('fc-char').textContent = d.char;
+  const charColors = { new: 'var(--new)', reviewing: 'var(--reviewing)', mastered: 'var(--mastered)' };
+  document.getElementById('fc-char').style.color = charColors[fcMode] || 'var(--new)';
+
+  // reset input
+  const inp = document.getElementById('fc-input');
+  inp.value = '';
+  inp.disabled = false;
+  inp.className = '';
+  document.getElementById('fc-submit-btn').disabled = false;
+
+  // reset feedback
+  const fb = document.getElementById('fc-feedback');
+  fb.textContent = '';
+  fb.className = '';
+
+  // hide back & next button
+  document.getElementById('fc-back').classList.remove('show');
+  document.getElementById('fc-next-btn').style.display = 'none';
+
+  // focus input
+  setTimeout(() => inp.focus(), 60);
+}
+
+// ── SUBMIT ANSWER ──
+function submitAnswer() {
+  if (fcAnswered) return;
+  const inp = document.getElementById('fc-input');
+  const val = inp.value.trim();
+  if (!val) { inp.focus(); return; }
+
+  const d = fcQueue[fcIndex];
+  const userNorm = val.toLowerCase();
+  // Support "Vi / Vị" multi-reading fields
+  const correct = (d.hanViet || '').split('/').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const isCorrect = correct.some(ans => ans === userNorm);
+
+  fcAnswered = true;
+  inp.disabled = true;
+  document.getElementById('fc-submit-btn').disabled = true;
+
+  // Show back of card (readings + meaning)
+  document.getElementById('fc-rv-hv').textContent = d.hanViet  || '—';
+  document.getElementById('fc-rv-py').textContent = d.pinyin   || '—';
+  document.getElementById('fc-rv-jy').textContent = d.jyutping || '—';
+  document.getElementById('fc-m-main').textContent = d.meaning || '—';
+  document.getElementById('fc-m-compounds').textContent =
+    (d.compounds || []).slice(0, 3).map(c => `${c.word} ${c.reading}`).join('  ·  ');
+  document.getElementById('fc-back').classList.add('show');
+  fcRevealed = true;
+
+  const fb = document.getElementById('fc-feedback');
+  if (isCorrect) {
+    inp.classList.add('fc-input-correct');
+    fb.textContent = '✓ Chính xác!';
+    fb.className = 'fc-feedback-correct';
+    setTimeout(() => rateCard('mastered'), 1200);
+  } else {
+    inp.classList.add('fc-input-wrong');
+    fb.innerHTML = `✗ Chưa đúng — đáp án: <strong style="color:var(--text)">${d.hanViet || '?'}</strong>`;
+    fb.className = 'fc-feedback-wrong';
+    document.getElementById('fc-next-btn').style.display = 'block';
+    document.getElementById('fc-next-btn').focus();
+    fcPendingRating = 'reviewing';
+  }
+}
+
+function nextAfterAnswer() {
+  rateCard(fcPendingRating || 'reviewing');
+  fcPendingRating = null;
+}
+
+function revealCard() {
+  // kept for internal compatibility — no longer called from UI
+  if (fcRevealed) return;
+  fcRevealed = true;
+  const d = fcQueue[fcIndex];
+  document.getElementById('fc-rv-hv').textContent = d.hanViet  || '—';
+  document.getElementById('fc-rv-py').textContent = d.pinyin   || '—';
+  document.getElementById('fc-rv-jy').textContent = d.jyutping || '—';
+  document.getElementById('fc-m-main').textContent = d.meaning || '—';
+  document.getElementById('fc-m-compounds').textContent =
+    (d.compounds || []).slice(0, 3).map(c => `${c.word} ${c.reading}`).join('  ·  ');
+  document.getElementById('fc-back').classList.add('show');
+}
+
+function rateCard(rating) {
+  const d = fcQueue[fcIndex];
+  const entry = data.find(x => x.id === d.id);
+  const prevStatus = entry ? entry.status : d.status;
+
+  // save to history for undo
+  fcHistory.push({ index: fcIndex, id: d.id, prevStatus, rating });
+
+  // update status
+  if (entry) entry.status = rating;
+  save();
+
+  fcResults[rating]++;
+  fcIndex++;
+
+  if (fcIndex >= fcQueue.length) {
+    showSummary();
+  } else {
+    showCard();
+  }
+}
+
+function prevCard() {
+  if (!fcHistory.length) return;
+
+  // if on summary screen, go back to card view
+  const summary = document.getElementById('fc-summary');
+  if (summary.classList.contains('show')) {
+    summary.classList.remove('show');
+    document.getElementById('fc-card').style.display   = 'flex';
+    document.getElementById('fc-footer').style.display = 'flex';
+  }
+
+  const last  = fcHistory.pop();
+  const entry = data.find(x => x.id === last.id);
+  if (entry) entry.status = last.prevStatus;
+  save();
+
+  fcResults[last.rating] = Math.max(0, fcResults[last.rating] - 1);
+  fcIndex = last.index;
+  showCard();
+}
+
+function showSummary() {
+  document.getElementById('fc-progress-bar').style.width = '100%';
+  document.getElementById('fc-card').style.display   = 'none';
+  document.getElementById('fc-footer').style.display = 'none';
+  document.getElementById('fc-counter').textContent  = `${fcQueue.length} / ${fcQueue.length}`;
+
+  document.getElementById('sum-reviewing').textContent = fcResults.reviewing;
+  document.getElementById('sum-mastered').textContent  = fcResults.mastered;
+
+  // dynamic labels for mastered-check mode
+  if (fcMode === 'mastered') {
+    document.getElementById('sum-lbl-reviewing').textContent = 'Quên rồi';
+    document.getElementById('sum-lbl-mastered').textContent  = 'Vẫn nhớ';
+  } else {
+    document.getElementById('sum-lbl-reviewing').textContent = 'Đang ôn';
+    document.getElementById('sum-lbl-mastered').textContent  = 'Đã thuộc';
+  }
+
+  const total = fcQueue.length;
+  const pct   = Math.round((fcResults.mastered / total) * 100);
+
+  if (fcMode === 'mastered') {
+    document.getElementById('sum-msg').textContent =
+      pct === 100
+        ? 'Xuất sắc! Bạn vẫn nhớ hết toàn bộ từ đã thuộc 🔥'
+        : pct >= 70
+        ? `${pct}% từ vẫn nhớ — trí nhớ tốt!`
+        : pct >= 40
+        ? `${pct}% từ vẫn nhớ — nên ôn lại phần quên.`
+        : `Chỉ ${pct}% từ vẫn nhớ — nên ôn tập thêm nhé.`;
+  } else {
+    document.getElementById('sum-msg').textContent =
+      pct === 100
+        ? 'Tuyệt vời! Bạn thuộc hết tất cả thẻ trong buổi này 🔥'
+        : pct >= 60
+        ? `${pct}% thẻ đã thuộc — đang tiến bộ tốt!`
+        : `${pct}% thẻ đã thuộc — ôn thêm một chút nhé.`;
+  }
+
+  document.getElementById('fc-summary').classList.add('show');
+
+  updateFabCounts();
+  if (currentView === 'graph') renderGraph();
+}
+
+function closeFlashcard() {
+  document.getElementById('fc-overlay').classList.remove('open');
+  document.getElementById('fc-card').style.display   = 'flex';
+  document.getElementById('fc-footer').style.display = 'flex';
+  document.getElementById('fc-summary').classList.remove('show');
+  updateFabCounts();
+  if (currentView === 'graph') renderGraph();
+}
+
+// close flashcard on ESC
+document.getElementById('fc-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('fc-overlay')) closeFlashcard();
+});
+
+// ═══════════════════════════════════════
+// BULK ADD
+// ═══════════════════════════════════════
+function isCJK(ch) {
+  const cp = ch.codePointAt(0);
+  return (cp >= 0x4E00 && cp <= 0x9FFF)   // CJK Unified
+      || (cp >= 0x3400 && cp <= 0x4DBF)   // CJK Extension A
+      || (cp >= 0xF900 && cp <= 0xFAFF)   // CJK Compatibility
+      || (cp >= 0x20000 && cp <= 0x2A6DF);// CJK Extension B
+}
+
+function parseBulkInput(raw) {
+  // split on spaces, commas, newlines, ·、，；; then extract CJK chars
+  return [...raw].filter(isCJK);
+}
+
+function openBulk() {
+  document.getElementById('bulk-input').value = '';
+  document.getElementById('bulk-preview').innerHTML = '';
+  document.getElementById('bulk-confirm-btn').disabled = true;
+  document.getElementById('bulk-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('bulk-input').focus(), 80);
+}
+
+function closeBulk() {
+  document.getElementById('bulk-overlay').classList.remove('open');
+}
+
+function previewBulk() {
+  const raw    = document.getElementById('bulk-input').value;
+  const chars  = [...new Set(parseBulkInput(raw))]; // unique
+  const existing = new Set(data.map(d => d.char));
+  const newChars = chars.filter(c => !existing.has(c));
+  const dupChars = chars.filter(c =>  existing.has(c));
+  const preview  = document.getElementById('bulk-preview');
+  const btn      = document.getElementById('bulk-confirm-btn');
+
+  if (!chars.length) { preview.innerHTML = ''; btn.disabled = true; return; }
+
+  const chips = chars.map(c => {
+    const dup = existing.has(c);
+    return `<span class="p-chip${dup ? ' is-dup' : ''}">${c}</span>`;
+  }).join('');
+
+  preview.innerHTML = `
+    <div>
+      <span class="p-new">+${newChars.length} chữ mới</span>
+      ${dupChars.length ? `&nbsp;·&nbsp;<span class="p-dup">${dupChars.length} đã có (bỏ qua)</span>` : ''}
+    </div>
+    <div class="p-chars">${chips}</div>
+  `;
+  btn.disabled = newChars.length === 0;
+}
+
+function confirmBulk() {
+  const raw      = document.getElementById('bulk-input').value;
+  const chars    = [...new Set(parseBulkInput(raw))];
+  const existing = new Set(data.map(d => d.char));
+  const toAdd    = chars.filter(c => !existing.has(c));
+
+  toAdd.forEach((c, i) => {
+    data.push({
+      id: 'b' + Date.now() + i,
+      char: c,
+      hanViet: '', pinyin: '', jyutping: '',
+      meaning: '', compounds: [], radical: '',
+      notes: '', status: 'new',
+      dateAdded: new Date().toISOString().slice(0, 10)
+    });
+  });
+
+  save();
+  closeBulk();
+  updateFabCounts();
+  updateStats();
+  if (currentView === 'graph') renderGraph(); else renderList();
+
+  // brief toast
+  const t = document.createElement('div');
+  t.textContent = `✓ Đã thêm ${toAdd.length} chữ mới vào kho`;
+  Object.assign(t.style, {
+    position:'fixed', bottom:'80px', left:'50%', transform:'translateX(-50%)',
+    background:'var(--accent)', color:'#fff', padding:'10px 22px',
+    borderRadius:'20px', fontSize:'13px', fontWeight:'700',
+    zIndex:'999', opacity:'1', transition:'opacity 0.4s'
+  });
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2000);
+}
+
+document.getElementById('bulk-input').addEventListener('input', previewBulk);
+document.getElementById('bulk-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('bulk-overlay')) closeBulk();
+});
+
+// ═══════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('btn-theme').textContent = isLight ? '🌑' : '🌙';
+  localStorage.setItem('hantu_theme', isLight ? 'light' : 'dark');
+}
+
+function applyTheme() {
+  const saved = localStorage.getItem('hantu_theme');
+  if (saved === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('btn-theme').textContent = '🌑';
+  }
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+load();
+applyTheme();
+initGraph();
+updateFabCounts();
+window.addEventListener('resize', () => { if (currentView==='graph') initGraph(); });
+</script>
+</body>
+</html>
